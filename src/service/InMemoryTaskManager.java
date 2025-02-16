@@ -53,6 +53,26 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void clearAllSubtasks() {
+        // Удаляем все подзадачи из списка задач
+        tasks.values().removeIf(task -> task instanceof Subtask);
+
+        // Также удаляем подзадачи из истории просмотров
+        for (Task task : new ArrayList<>(tasks.values())) {
+            if (task instanceof Subtask) {
+                historyManager.remove(task.getId());
+            }
+        }
+
+        // Обновляем статусы эпиков после удаления подзадач
+        for (Task task : tasks.values()) {
+            if (task instanceof Epic) {
+                updateEpicStatus((Epic) task);
+            }
+        }
+    }
+
+    @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
