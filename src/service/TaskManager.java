@@ -1,5 +1,8 @@
 package service;
 
+import model.Epic;
+import model.Subtask;
+import model.Task;
 import yandex.service.model.*;
 
 import java.util.List;
@@ -36,4 +39,8 @@ public interface TaskManager {
     void clearAllSubtasks();
 
     List<Task> getHistory();
+
+    default void addTask(Task task) {
+
+    }
 }
