@@ -1,12 +1,10 @@
 package service;
 
-import model.Epic;
-import model.Subtask;
-import model.Task;
+import yandex.service.model.*;
+
 import java.util.List;
 
 public interface TaskManager {
-
     Task addTask(Task task);
 
     Epic addEpic(Epic epic);
