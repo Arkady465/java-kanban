@@ -1,8 +1,7 @@
 package yandex;
 
-import model.*;
-import service.TaskManager;
-import service.Managers;
+import com.yandex.app.model.*;
+import com.yandex.app.service.TaskManager;
 
 public class Main {
     public static void main(String[] args) {
