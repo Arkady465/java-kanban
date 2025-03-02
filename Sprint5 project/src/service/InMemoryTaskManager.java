@@ -1,10 +1,9 @@
 package service;
 
-import model.Epic;
-import model.Status;
-import model.Subtask;
 import model.Task;
-
+import model.Epic;
+import model.Subtask;
+import model.Status;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -30,7 +29,6 @@ public class InMemoryTaskManager implements TaskManager {
     public Subtask addSubtask(Subtask subtask) {
         subtask.setId(++idCounter);
         tasks.put(subtask.getId(), subtask);
-
         Task epic = tasks.get(subtask.getEpicID());
         if (epic instanceof Epic) {
             ((Epic) epic).addSubtask(subtask);
@@ -114,54 +112,25 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTask(int id) {
         Task task = tasks.get(id);
-        if (task != null) {
-            historyManager.remove(id); // Удаляем задачу из истории просмотров
-            tasks.remove(id);
-        }
-    }
-
-    @Override
-    public void deleteEpic(int id) {
-        Task task = tasks.get(id);
-        if (task instanceof Epic) {
-            Epic epic = (Epic) task;
-
-            // Удаляем все связанные подзадачи
-            for (Subtask subtask : epic.getSubtaskList()) {
-                historyManager.remove(subtask.getId());
-                tasks.remove(subtask.getId());
-            }
-
-            historyManager.remove(id); // Удаляем эпик из истории
-            tasks.remove(id);
-        }
-    }
-
-    @Override
-    public void deleteSubtask(int id) {
-        Task task = tasks.get(id);
         if (task instanceof Subtask) {
             Subtask subtask = (Subtask) task;
-            Epic epic = (Epic) tasks.get(subtask.getEpicID());
-
-            if (epic != null) {
-                epic.getSubtaskList().remove(subtask);
-                updateEpicStatus(epic);
+            Task epic = tasks.get(subtask.getEpicID());
+            if (epic instanceof Epic) {
+                ((Epic) epic).getSubtaskList().remove(subtask);
+                updateEpicStatus((Epic) epic);
             }
-
-            historyManager.remove(id); // Удаляем подзадачу из истории просмотров
-            tasks.remove(id);
+        } else if (task instanceof Epic) {
+            Epic epic = (Epic) task;
+            for (Subtask subtask : epic.getSubtaskList()) {
+                tasks.remove(subtask.getId());
+            }
         }
+        tasks.remove(id);
     }
 
     @Override
     public void clearAllTasks() {
-        for (Integer id : new ArrayList<>(tasks.keySet())) {
-            if (!(tasks.get(id) instanceof Subtask || tasks.get(id) instanceof Epic)) {
-                historyManager.remove(id);
-                tasks.remove(id);
-            }
-        }
+        tasks.values().removeIf(task -> !(task instanceof Subtask) && !(task instanceof Epic));
     }
 
     @Override
@@ -169,10 +138,8 @@ public class InMemoryTaskManager implements TaskManager {
         for (Task task : new ArrayList<>(tasks.values())) {
             if (task instanceof Epic) {
                 for (Subtask subtask : ((Epic) task).getSubtaskList()) {
-                    historyManager.remove(subtask.getId());
                     tasks.remove(subtask.getId());
                 }
-                historyManager.remove(task.getId());
                 tasks.remove(task.getId());
             }
         }
@@ -188,7 +155,6 @@ public class InMemoryTaskManager implements TaskManager {
                     epic.getSubtaskList().remove(subtask);
                     updateEpicStatus(epic);
                 }
-                historyManager.remove(subtask.getId());
                 tasks.remove(subtask.getId());
             }
         }
@@ -205,10 +171,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.NEW);
             return;
         }
-
         boolean allDone = true;
         boolean anyInProgress = false;
-
         for (Subtask subtask : subtasks) {
             if (subtask.getStatus() == Status.NEW) {
                 allDone = false;
@@ -217,7 +181,6 @@ public class InMemoryTaskManager implements TaskManager {
                 anyInProgress = true;
             }
         }
-
         if (allDone) {
             epic.setStatus(Status.DONE);
         } else if (anyInProgress) {

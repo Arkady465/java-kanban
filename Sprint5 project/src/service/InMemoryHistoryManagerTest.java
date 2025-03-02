@@ -1,14 +1,19 @@
 package service;
 
 import model.Task;
+import model.Epic;
+import model.Subtask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import service.HistoryManager;
+import service.Managers;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class InMemoryHistoryManagerTest {
+
     private HistoryManager historyManager;
 
     @BeforeEach
@@ -18,42 +23,22 @@ class InMemoryHistoryManagerTest {
 
     @Test
     void shouldAddTasksToHistory() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
-
-        historyManager.add(task1);
-        historyManager.add(task2);
-
+        Task task = new Task("Task 1", "Description 1");
+        historyManager.add(task);
         List<Task> history = historyManager.getHistory();
-
-        assertEquals(2, history.size(), "History should contain 2 tasks");
-        assertEquals(task1, history.get(0), "First task should be task1");
-        assertEquals(task2, history.get(1), "Second task should be task2");
+        assertEquals(1, history.size(), "History should contain 1 task");
+        assertEquals(task, history.get(0), "First task in history should match");
     }
 
     @Test
-    void shouldRemoveTaskFromHistory() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
-
-        historyManager.add(task1);
-        historyManager.add(task2);
-
-        historyManager.remove(task1.getId());
-
+    void shouldNotExceedHistoryLimit() {
+        for (int i = 1; i <= 12; i++) {
+            historyManager.add(new Task("Task " + i, "Description " + i));
+        }
         List<Task> history = historyManager.getHistory();
-        assertEquals(1, history.size(), "History should contain only 1 task");
-        assertEquals(task2, history.get(0), "Remaining task should be task2");
-    }
-
-    @Test
-    void shouldUpdateHistoryOnDuplicateTask() {
-        Task task1 = new Task("Task 1", "Description 1");
-
-        historyManager.add(task1);
-        historyManager.add(task1);
-
-        List<Task> history = historyManager.getHistory();
-        assertEquals(1, history.size(), "History should contain only 1 task after duplicate addition");
+        assertEquals(10, history.size(), "History should only contain the last 10 tasks");
+        assertEquals("Task 3", history.get(0).getName(), "First task in history should match the 3rd task added");
+        assertEquals("Task 12", history.get(9).getName(), "Last task in history should match the last task added");
     }
 }
+
