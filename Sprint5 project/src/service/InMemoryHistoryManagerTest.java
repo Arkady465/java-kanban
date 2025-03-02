@@ -1,15 +1,11 @@
 package service;
 
 import model.Task;
-import model.Epic;
-import model.Subtask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
 import service.HistoryManager;
 import service.Managers;
-
 import java.util.List;
 
 class InMemoryHistoryManagerTest {
@@ -41,4 +37,3 @@ class InMemoryHistoryManagerTest {
         assertEquals("Task 12", history.get(9).getName(), "Last task in history should match the last task added");
     }
 }
-
