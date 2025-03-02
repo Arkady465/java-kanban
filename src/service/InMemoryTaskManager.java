@@ -1,7 +1,9 @@
-packagpackage service;
+package service;
 
-import yandex.service.model.*;
-
+import model.Task;
+import model.Epic;
+import model.Subtask;
+import model.Status;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -128,7 +130,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllTasks() {
-        tasks.values().removeIf(task -> task instanceof Task && !(task instanceof Subtask || task instanceof Epic));
+        tasks.values().removeIf(task -> !(task instanceof Subtask) && !(task instanceof Epic));
     }
 
     @Override
@@ -169,10 +171,8 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.NEW);
             return;
         }
-
         boolean allDone = true;
         boolean anyInProgress = false;
-
         for (Subtask subtask : subtasks) {
             if (subtask.getStatus() == Status.NEW) {
                 allDone = false;
@@ -181,7 +181,6 @@ public class InMemoryTaskManager implements TaskManager {
                 anyInProgress = true;
             }
         }
-
         if (allDone) {
             epic.setStatus(Status.DONE);
         } else if (anyInProgress) {
