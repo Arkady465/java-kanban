@@ -17,6 +17,7 @@ public class Subtask extends Task {
         return TaskType.SUBTASK;
     }
 
+    // Для подзадачи добавляем поле epic (id родительского эпика)
     @Override
     public String toCsvString() {
         return String.format("%d,%s,%s,%s,%s,%d", getId(), getType().name(), getName(), getStatus().name(), getDescription(), epicID);

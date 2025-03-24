@@ -20,6 +20,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
+    // Переопределённые методы изменения состояния – после базовой логики вызывается save()
+
     @Override
     public Task addTask(Task task) {
         Task t = super.addTask(task);
@@ -106,17 +108,19 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    // Метод загрузки менеджера из файла с использованием BufferedReader
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
         manager.autoSaveEnabled = false;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
-            String header = reader.readLine(); // Читаем заголовок
+            String header = reader.readLine(); // читаем заголовок
             if (header == null) {
                 return manager;
             }
             String line;
             int maxId = 0;
             List<String> taskLines = new ArrayList<>();
+            // Читаем строки с задачами до пустой строки
             while ((line = reader.readLine()) != null && !line.isEmpty()) {
                 taskLines.add(line);
                 String[] parts = line.split(",", -1);
@@ -137,6 +141,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     manager.addRestoredTask(task);
                 }
             }
+            // Затем добавляем подзадачи
             for (String taskLine : subtaskLines) {
                 Task task = fromString(taskLine);
                 manager.addRestoredTask(task);
@@ -148,12 +153,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     }
                 }
             }
+            // Читаем историю (если она есть)
             String historyLine = reader.readLine();
             if (historyLine != null && !historyLine.isBlank()) {
                 String[] historyIds = historyLine.split(",");
                 for (String idStr : historyIds) {
                     int id = Integer.parseInt(idStr);
-                    manager.getTask(id);
+                    manager.getTask(id); // добавляет задачу в историю
                 }
             }
             manager.setIdCounter(maxId);
@@ -164,6 +170,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
+    // Приватный метод сохранения состояния менеджера в файл с использованием BufferedWriter
     private void save() {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))) {
             writer.write("id,type,name,status,description,epic");
@@ -186,6 +193,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    // Приватный метод создания задачи из строки CSV
     private static Task fromString(String value) {
         String[] parts = value.split(",", -1);
         int id = Integer.parseInt(parts[0]);
