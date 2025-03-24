@@ -53,6 +53,14 @@ public class Task {
         this.status = status;
     }
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    public String toCsvString() {
+        return String.format("%d,%s,%s,%s,%s,", id, getType().name(), name, status.name(), description);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
