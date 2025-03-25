@@ -53,6 +53,17 @@ public class Task {
         this.status = status;
     }
 
+    // Метод, возвращающий тип задачи – для обычной задачи
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    // Преобразование задачи в CSV-формат.
+    // Для обычной задачи поле epic остаётся пустым.
+    public String toCsvString() {
+        return String.format("%d,%s,%s,%s,%s,", id, getType().name(), name, status.name(), description);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
