@@ -21,8 +21,14 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
+        // Удаляем задачу, если она уже присутствует, чтобы избежать дубликатов
         remove(task.getId());
+        // Добавляем задачу в конец истории
         linkLast(task);
+        // Если в истории стало больше 10 задач, удаляем самую старую (head)
+        if (nodeMap.size() > 10) {
+            remove(head.task.getId());
+        }
     }
 
     private void linkLast(Task task) {
