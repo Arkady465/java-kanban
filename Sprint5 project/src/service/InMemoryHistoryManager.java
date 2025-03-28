@@ -47,7 +47,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     private void removeNode(Node node) {
-        if (node == head && node == tail) { // единственный элемент
+        if (node == head && node == tail) {
             head = null;
             tail = null;
         } else if (node == head) {

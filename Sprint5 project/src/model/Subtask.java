@@ -13,6 +13,17 @@ public class Subtask extends Task {
     }
 
     @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
+    }
+
+    // Для подзадачи добавляем поле epic (id родительского эпика)
+    @Override
+    public String toCsvString() {
+        return String.format("%d,%s,%s,%s,%s,%d", getId(), getType().name(), getName(), getStatus().name(), getDescription(), epicID);
+    }
+
+    @Override
     public String toString() {
         return "Subtask{" +
                 "name='" + getName() + '\'' +
