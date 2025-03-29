@@ -1,9 +1,6 @@
 package service;
 
-import model.Task;
-import model.Epic;
-import model.Subtask;
-import model.Status;
+import model.*;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
@@ -136,27 +133,41 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void clearAllTasks() {
-        tasks.values().removeIf(task -> !(task instanceof Subtask) && !(task instanceof Epic));
+        List<Integer> idsToRemove = new ArrayList<>();
+        for (Task task : tasks.values()) {
+            if (!(task instanceof Epic) && !(task instanceof Subtask)) {
+                idsToRemove.add(task.getId());
+            }
+        }
+        for (int id : idsToRemove) {
+            tasks.remove(id);
+            historyManager.remove(id);
+        }
     }
 
     @Override
     public void clearAllEpics() {
-        for (Task task : new ArrayList<>(tasks.values())) {
+        List<Integer> idsToRemove = new ArrayList<>();
+        for (Task task : tasks.values()) {
             if (task instanceof Epic) {
                 Epic epic = (Epic) task;
                 for (Subtask subtask : epic.getSubtaskList()) {
                     tasks.remove(subtask.getId());
                     historyManager.remove(subtask.getId());
                 }
-                tasks.remove(epic.getId());
-                historyManager.remove(epic.getId());
+                idsToRemove.add(epic.getId());
             }
+        }
+        for (int id : idsToRemove) {
+            tasks.remove(id);
+            historyManager.remove(id);
         }
     }
 
     @Override
     public void clearAllSubtasks() {
-        for (Task task : new ArrayList<>(tasks.values())) {
+        List<Integer> idsToRemove = new ArrayList<>();
+        for (Task task : tasks.values()) {
             if (task instanceof Subtask) {
                 Subtask subtask = (Subtask) task;
                 Epic epic = (Epic) tasks.get(subtask.getEpicID());
@@ -164,9 +175,12 @@ public class InMemoryTaskManager implements TaskManager {
                     epic.getSubtaskList().remove(subtask);
                     updateEpicStatus(epic);
                 }
-                tasks.remove(subtask.getId());
-                historyManager.remove(subtask.getId());
+                idsToRemove.add(subtask.getId());
             }
+        }
+        for (int id : idsToRemove) {
+            tasks.remove(id);
+            historyManager.remove(id);
         }
     }
 
@@ -198,13 +212,5 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
-    }
-
-    protected void addRestoredTask(Task task) {
-        tasks.put(task.getId(), task);
-    }
-
-    protected void setIdCounter(int value) {
-        idCounter = value;
     }
 }
