@@ -2,7 +2,7 @@ package model;
 
 import java.util.Objects;
 
-public abstract class Task {
+public class Task {
     private String name;
     private String description;
     private int id;
@@ -57,9 +57,6 @@ public abstract class Task {
         return TaskType.TASK;
     }
 
-    // Для эпика поле epic оставляем пустым
-    public abstract String toCsvString();
-
     @Override
     public String toString() {
         return id + "," + getType() + "," + name + "," + status + "," + description;
@@ -76,12 +73,7 @@ public abstract class Task {
         Task task;
         switch (type) {
             case TASK:
-                task = new Task(name, description) {
-                    @Override
-                    public String toCsvString() {
-                        return "";
-                    }
-                };
+                task = new Task(name, description);
                 break;
             case EPIC:
                 task = new Epic(name, description);
