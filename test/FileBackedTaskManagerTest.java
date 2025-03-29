@@ -1,8 +1,11 @@
+package test;
+
 import model.Task;
 import org.junit.jupiter.api.Test;
 import service.FileBackedTaskManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,7 +29,11 @@ public class FileBackedTaskManagerTest {
     @Test
     void shouldHandleEmptyFile() {
         File file = new File("empty.csv");
-        FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            fail("Не удалось создать файл: " + e.getMessage());
+        }
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
         assertTrue(loaded.getAllTasks().isEmpty());
