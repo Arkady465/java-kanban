@@ -26,20 +26,8 @@ public class Epic extends Task {
         return TaskType.EPIC;
     }
 
-    // Для эпика поле epic оставляем пустым
-    @Override
-    public String toCsvString() {
-        return String.format("%d,%s,%s,%s,%s,", getId(), getType().name(), getName(), getStatus().name(), getDescription());
-    }
-
     @Override
     public String toString() {
-        return "Epic{" +
-                "name=" + getName() +
-                ", description=" + getDescription() +
-                ", id=" + getId() +
-                ", subtaskList.size=" + subtaskList.size() +
-                ", status=" + getStatus() +
-                '}';
+        return getId() + "," + getType() + "," + getName() + "," + getStatus() + "," + getDescription();
     }
 }
