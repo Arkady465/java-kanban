@@ -1,5 +1,3 @@
-package test;
-
 import model.Task;
 import org.junit.jupiter.api.Test;
 import service.FileBackedTaskManager;
@@ -13,29 +11,35 @@ import static org.junit.jupiter.api.Assertions.*;
 public class FileBackedTaskManagerTest {
 
     @Test
-    void shouldSaveAndLoadSingleTask() {
-        File file = new File("test.csv");
+    void shouldSaveTaskToFile() {
+        File file = new File("test-save.csv");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
         Task task = new Task("Test", "Description");
         manager.addTask(task);
 
+        assertTrue(file.exists(), "Файл должен быть создан после сохранения задачи");
+    }
+
+    @Test
+    void shouldLoadSingleTaskFromFile() {
+        File file = new File("test-save.csv");
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
         List<Task> loadedTasks = loaded.getAllTasks();
 
-        assertEquals(1, loadedTasks.size());
-        assertEquals("Test", loadedTasks.get(0).getName());
+        assertEquals(1, loadedTasks.size(), "Должна быть одна загруженная задача");
+        assertEquals("Test", loadedTasks.get(0).getName(), "Имя задачи должно совпадать");
     }
 
     @Test
     void shouldHandleEmptyFile() {
         File file = new File("empty.csv");
         try {
-            file.createNewFile();
+            file.createNewFile(); // создаёт файл, если его нет
         } catch (IOException e) {
             fail("Не удалось создать файл: " + e.getMessage());
         }
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
-        assertTrue(loaded.getAllTasks().isEmpty());
+        assertTrue(loaded.getAllTasks().isEmpty(), "Задачи должны быть пустыми при загрузке из пустого файла");
     }
 }
