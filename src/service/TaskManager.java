@@ -43,6 +43,8 @@ public interface TaskManager {
 
     Epic updateEpic(Epic epic);
 
+    List<Subtask> getSubtasksForEpic(int epicId);
+
     List<Task> getHistory();
 }
 
