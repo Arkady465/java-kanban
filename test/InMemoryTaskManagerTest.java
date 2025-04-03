@@ -81,7 +81,8 @@ class InMemoryTaskManagerTest {
         Task task2 = new Task("Task 2", "Description 2");
         Epic epic = new Epic("Epic", "Epic desc");
 
-        TaskManager taskManager = null;
+        // Используем корректный экземпляр TaskManager, а не null
+        TaskManager taskManager = Managers.getDefault();
         taskManager.addTask(task1);
         taskManager.addTask(task2);
         taskManager.addEpic(epic);
@@ -97,5 +98,4 @@ class InMemoryTaskManagerTest {
         assertEquals(task2, history.get(1));
         assertEquals(epic, history.get(2));
     }
-
 }
