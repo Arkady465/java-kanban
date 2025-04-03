@@ -17,6 +17,11 @@ public class Subtask extends Task {
         return epicId;
     }
 
+    // Метод, используемый менеджером для получения id эпика
+    public int getEpicID() {
+        return epicId;
+    }
+
     @Override
     public TaskType getType() {
         return TaskType.SUBTASK;
@@ -25,9 +30,5 @@ public class Subtask extends Task {
     @Override
     public String toString() {
         return id + "," + getType() + "," + name + "," + status + "," + description + "," + epicId;
-    }
-
-    public Integer getEpicID() {
-        return 0;
     }
 }
