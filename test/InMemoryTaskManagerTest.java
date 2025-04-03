@@ -1,6 +1,4 @@
 import model.Epic;
-import model.Status;
-import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,63 +11,57 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
-    private TaskManager manager;
+    private TaskManager taskManager;
 
     @BeforeEach
     void setUp() {
-        manager = Managers.getDefault();
+        taskManager = Managers.getDefault();
     }
 
     @Test
     void shouldAddAndRetrieveTask() {
-        Task task = new Task("Test Task", "Test Description");
-        Task added = manager.addTask(task);
-        Task retrieved = manager.getTask(added.getId());
-
-        assertEquals(added, retrieved);
+        Task task = taskManager.addTask(new Task("Test Task", "Test Description"));
+        Task retrieved = taskManager.getTask(task.getId());
+        assertEquals(task, retrieved);
     }
 
     @Test
     void shouldAddAndRetrieveEpic() {
-        Epic epic = new Epic("Epic 1", "Epic Description");
-        Epic added = manager.addEpic(epic);
-        Epic retrieved = manager.getEpic(added.getId());
-
-        assertEquals(added, retrieved);
+        Epic epic = taskManager.addEpic(new Epic("Epic 1", "Epic Description"));
+        Epic retrieved = taskManager.getEpic(epic.getId());
+        assertEquals(epic, retrieved);
     }
 
     @Test
     void shouldAddAndRetrieveSubtask() {
-        Epic epic = manager.addEpic(new Epic("Epic 1", "Epic Desc"));
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Desc", epic.getId());
-        Subtask added = manager.addSubtask(subtask);
-
-        Subtask retrieved = manager.getSubtask(added.getId());
-        assertEquals(added, retrieved);
+        Epic epic = taskManager.addEpic(new Epic("Epic 1", "Epic Desc"));
+        Task subtask = taskManager.addSubtask(new model.Subtask("Subtask 1", "Subtask Desc", epic.getId()));
+        model.Subtask retrieved = taskManager.getSubtask(subtask.getId());
+        assertEquals(subtask, retrieved);
     }
 
     @Test
     void shouldUpdateEpicStatusBasedOnSubtasks() {
-        Epic epic = manager.addEpic(new Epic("Epic", "Desc"));
-        Subtask sub1 = manager.addSubtask(new Subtask("Sub1", "Desc", epic.getId()));
-        Subtask sub2 = manager.addSubtask(new Subtask("Sub2", "Desc", epic.getId()));
+        Epic epic = taskManager.addEpic(new Epic("Epic", "Desc"));
+        model.Subtask sub1 = taskManager.addSubtask(new model.Subtask("Sub1", "Desc", epic.getId()));
+        model.Subtask sub2 = taskManager.addSubtask(new model.Subtask("Sub2", "Desc", epic.getId()));
 
-        sub1.setStatus(Status.DONE);
-        sub2.setStatus(Status.NEW);
-        manager.updateSubtask(sub1);
-        manager.updateSubtask(sub2);
+        sub1.setStatus(model.Status.DONE);
+        sub2.setStatus(model.Status.NEW);
+        taskManager.updateSubtask(sub1);
+        taskManager.updateSubtask(sub2);
 
-        Epic updatedEpic = manager.getEpic(epic.getId());
-        assertEquals(Status.IN_PROGRESS, updatedEpic.getStatus(), "Epic status should be IN_PROGRESS when not all subtasks are done");
+        Epic updatedEpic = taskManager.getEpic(epic.getId());
+        assertEquals(model.Status.IN_PROGRESS, updatedEpic.getStatus(), "Epic status should be IN_PROGRESS when not all subtasks are done");
     }
 
     @Test
     void historyShouldNotExceedLimit() {
         for (int i = 0; i < 12; i++) {
-            Task task = manager.addTask(new Task("Task " + i, "Description " + i));
-            manager.getTask(task.getId());
+            Task task = taskManager.addTask(new Task("Task " + i, "Description " + i));
+            taskManager.getTask(task.getId());
         }
-        List<Task> history = manager.getHistory();
+        List<Task> history = taskManager.getHistory();
         assertEquals(10, history.size());
         assertEquals("Task 2", history.get(0).getName());
         assertEquals("Task 11", history.get(9).getName());
@@ -77,17 +69,12 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldReturnHistoryOfTasks() {
-        Task task1 = new Task("Task 1", "Description 1");
-        Task task2 = new Task("Task 2", "Description 2");
-        Epic epic = new Epic("Epic", "Epic desc");
+        // Используем возвращаемые объекты, чтобы быть уверенными в корректном присвоении id
+        Task task1 = taskManager.addTask(new Task("Task 1", "Description 1"));
+        Task task2 = taskManager.addTask(new Task("Task 2", "Description 2"));
+        Epic epic = taskManager.addEpic(new Epic("Epic", "Epic desc"));
 
-        // Используем корректный экземпляр TaskManager, а не null
-        TaskManager taskManager = Managers.getDefault();
-        taskManager.addTask(task1);
-        taskManager.addTask(task2);
-        taskManager.addEpic(epic);
-
-        // Добавляем в историю через вызов get
+        // Добавляем задачи в историю через вызовы get
         taskManager.getTask(task1.getId());
         taskManager.getTask(task2.getId());
         taskManager.getEpic(epic.getId());
