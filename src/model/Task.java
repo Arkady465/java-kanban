@@ -3,10 +3,10 @@ package model;
 import java.util.Objects;
 
 public class Task {
-    private String name;
-    private String description;
-    private int id;
-    private Status status;
+    protected String name;
+    protected String description;
+    protected int id;
+    protected Status status;
 
     public Task(String name, String description) {
         this.name = name;
@@ -14,42 +14,9 @@ public class Task {
         this.status = Status.NEW;
     }
 
-    public Task(int id, String name, String description, Status status) {
+    public Task(int id, String name, Status status, String description) {
+        this(name, description);
         this.id = id;
-        this.name = name;
-        this.description = description;
-        this.status = status;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -57,52 +24,39 @@ public class Task {
         return TaskType.TASK;
     }
 
-    @Override
-    public String toString() {
-        return id + "," + getType() + "," + name + "," + status + "," + description;
-    }
+    // Getters and setters
 
-    public static Task fromString(String value) {
-        String[] parts = value.split(",");
-        int id = Integer.parseInt(parts[0]);
-        TaskType type = TaskType.valueOf(parts[1]);
-        String name = parts[2];
-        Status status = Status.valueOf(parts[3]);
-        String description = parts[4];
+    public String getName() { return name; }
 
-        Task task;
-        switch (type) {
-            case TASK:
-                task = new Task(name, description);
-                break;
-            case EPIC:
-                task = new Epic(name, description);
-                break;
-            case SUBTASK:
-                int epicId = Integer.parseInt(parts[5]);
-                task = new Subtask(name, description, epicId);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown task type: " + type);
-        }
-        task.setId(id);
-        task.setStatus(status);
-        return task;
-    }
+    public void setName(String name) { this.name = name; }
+
+    public String getDescription() { return description; }
+
+    public void setDescription(String description) { this.description = description; }
+
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
+
+    public Status getStatus() { return status; }
+
+    public void setStatus(Status status) { this.status = status; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Task)) return false;
         Task task = (Task) o;
-        return id == task.id &&
-                Objects.equals(name, task.name) &&
-                Objects.equals(description, task.description) &&
-                status == task.status;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, status);
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return id + "," + getType() + "," + name + "," + status + "," + description;
     }
 }
