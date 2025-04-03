@@ -1,31 +1,33 @@
 package yandex;
 
 import model.*;
-import service.TaskManager;
-import service.Managers;
+import service.FileBackedTaskManager;
+
+import java.io.File;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager taskManager = Managers.getDefault();
+        File file = new File("data.csv");
+        FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        // Создаем задачу
-        Task task = new Task("Clean floor", "Use new detergent");
-        taskManager.addTask(task);
-        System.out.println(taskManager.getTask(task.getId()));
+        Task task1 = new Task("Покупки", "Купить хлеб и молоко");
+        Epic epic = new Epic("Ремонт", "Сделать ремонт в комнате");
+        Subtask sub1 = new Subtask("Поклеить обои", "Выбрать светлые", epic.getId());
 
-        // Создаем эпик и подзадачу
-        Epic epic = new Epic("Renovate flat", "Complete during vacation");
-        taskManager.addEpic(epic);
-        System.out.println(taskManager.getTask(epic.getId()));
+        manager.addTask(task1);
+        manager.addEpic(epic);
+        manager.addSubtask(sub1);
 
-        Subtask subtask = new Subtask("Wallpapering", "Choose light colors", epic.getId());
-        taskManager.addSubtask(subtask);
-        System.out.println(taskManager.getTask(subtask.getId()));
+        System.out.println("Сохранённые задачи:");
+        for (Task task : manager.getAllTasks()) {
+            System.out.println(task);
+        }
 
-        // Вывод истории просмотров
-        System.out.println("History:");
-        for (Task t : taskManager.getHistory()) {
-            System.out.println(t);
+        // Загружаем менеджер из файла
+        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
+        System.out.println("\nЗагруженные задачи из файла:");
+        for (Task task : loadedManager.getAllTasks()) {
+            System.out.println(task);
         }
     }
 }

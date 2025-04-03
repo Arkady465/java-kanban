@@ -3,22 +3,25 @@ package model;
 import java.util.Objects;
 
 public class Task {
-    private String name;
-    private String description;
-    private int id;
-    private Status status;
-
-    public Task(int id, String name, String description, Status status) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.status = status;
-    }
+    protected String name;
+    protected String description;
+    protected int id;
+    protected Status status;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = Status.NEW;
+    }
+
+    public Task(int id, String name, Status status, String description) {
+        this(name, description);
+        this.id = id;
+        this.status = status;
+    }
+
+    public TaskType getType() {
+        return TaskType.TASK;
     }
 
     public String getName() {
@@ -53,40 +56,21 @@ public class Task {
         this.status = status;
     }
 
-    // Метод, возвращающий тип задачи – для обычной задачи
-    public TaskType getType() {
-        return TaskType.TASK;
-    }
-
-    // Преобразование задачи в CSV-формат.
-    // Для обычной задачи поле epic остаётся пустым.
-    public String toCsvString() {
-        return String.format("%d,%s,%s,%s,%s,", id, getType().name(), name, status.name(), description);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Task)) return false;
         Task task = (Task) o;
-        return id == task.id &&
-                Objects.equals(name, task.name) &&
-                Objects.equals(description, task.description) &&
-                status == task.status;
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, status);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
-        return "Task{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", id=" + id +
-                ", status=" + status +
-                '}';
+        return id + "," + getType() + "," + name + "," + status + "," + description;
     }
 }
