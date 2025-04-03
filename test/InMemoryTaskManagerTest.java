@@ -77,19 +77,25 @@ class InMemoryTaskManagerTest {
 
     @Test
     void shouldReturnHistoryOfTasks() {
-        Task task1 = manager.addTask(new Task("Task 1", "Desc 1"));
-        Task task2 = manager.addTask(new Task("Task 2", "Desc 2"));
-        Task task3 = manager.addTask(new Task("Task 3", "Desc 3"));
+        Task task1 = new Task("Task 1", "Description 1");
+        Task task2 = new Task("Task 2", "Description 2");
+        Epic epic = new Epic("Epic", "Epic desc");
 
-        // simulate views
-        manager.getTask(task1.getId());
-        manager.getTask(task2.getId());
-        manager.getTask(task3.getId());
+        TaskManager taskManager = null;
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        taskManager.addEpic(epic);
 
-        List<Task> history = manager.getHistory();
+        // Добавляем в историю через вызов get
+        taskManager.getTask(task1.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.getEpic(epic.getId());
+
+        List<Task> history = taskManager.getHistory();
         assertEquals(3, history.size(), "History should contain 3 tasks");
         assertEquals(task1, history.get(0));
         assertEquals(task2, history.get(1));
-        assertEquals(task3, history.get(2));
+        assertEquals(epic, history.get(2));
     }
+
 }
