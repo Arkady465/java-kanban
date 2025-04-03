@@ -10,9 +10,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        // Добавляем задачу в конец истории
+        // Убираем предыдущую копию, если такая уже есть, чтобы избежать дублирования.
+        history.removeIf(t -> t.getId() == task.getId());
         history.add(task);
-        // Если количество задач превышает 10, удаляем самые старые
+        // Если количество задач превышает 10, удаляем самые старые.
         while (history.size() > 10) {
             history.remove(0);
         }
@@ -20,14 +21,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        // Удаляет первую найденную задачу с данным id.
-        // Обратите внимание: если задачи не имеют уникального id, этот метод может удалять не то, что ожидается.
-        for (int i = 0; i < history.size(); i++) {
-            if (history.get(i).getId() == id) {
-                history.remove(i);
-                break;
-            }
-        }
+        history.removeIf(t -> t.getId() == id);
     }
 
     @Override
@@ -35,4 +29,3 @@ public class InMemoryHistoryManager implements HistoryManager {
         return new ArrayList<>(history);
     }
 }
-
