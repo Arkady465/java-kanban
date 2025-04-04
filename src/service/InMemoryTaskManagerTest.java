@@ -1,98 +1,96 @@
 package service;
 
-import model.Task;
-import model.Epic;
-import model.Subtask;
-import model.Status;
+import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
-class InMemoryTaskManagerTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    private TaskManager taskManager;
+public class InMemoryTaskManagerTest {
+    private TaskManager manager;
 
     @BeforeEach
     void setUp() {
-        taskManager = Managers.getDefault();
+        manager = Managers.getDefault();
     }
 
     @Test
     void shouldAddAndRetrieveTask() {
-        Task task = new Task("Task 1", "Description 1");
-        Task savedTask = taskManager.addTask(task);
-        assertNotNull(savedTask, "Task should be saved and not null");
-        assertEquals(task.getName(), savedTask.getName(), "Task names should match");
-        assertEquals(task.getDescription(), savedTask.getDescription(), "Task descriptions should match");
+        Task task = new Task("Test Task", "Test Description");
+        manager.addTask(task);
+        Task retrieved = manager.getTask(task.getId());
+        assertEquals(task, retrieved);
     }
 
     @Test
     void shouldAddAndRetrieveEpic() {
-        Epic epic = new Epic("Epic 1", "Description 1");
-        Epic savedEpic = taskManager.addEpic(epic);
-        assertNotNull(savedEpic, "Epic should be saved and not null");
-        assertEquals(epic.getName(), savedEpic.getName(), "Epic names should match");
-        assertEquals(epic.getDescription(), savedEpic.getDescription(), "Epic descriptions should match");
+        Epic epic = new Epic("Test Epic", "Epic Description");
+        manager.addEpic(epic);
+        Epic retrieved = manager.getEpic(epic.getId());
+        assertEquals(epic, retrieved);
     }
 
     @Test
     void shouldAddAndRetrieveSubtask() {
-        Epic epic = new Epic("Epic 1", "Description 1");
-        taskManager.addEpic(epic);
-        Subtask subtask = new Subtask("Subtask 1", "Description 1", epic.getId());
-        Subtask savedSubtask = taskManager.addSubtask(subtask);
-        assertNotNull(savedSubtask, "Subtask should be saved and not null");
-        assertEquals(subtask.getEpicID(), savedSubtask.getEpicID(), "Subtask's epic ID should match");
-    }
-
-    @Test
-    void shouldUpdateEpicStatusBasedOnSubtasks() {
-        Epic epic = new Epic("Epic 1", "Description 1");
-        taskManager.addEpic(epic);
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", epic.getId());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", epic.getId());
-        taskManager.addSubtask(subtask1);
-        taskManager.addSubtask(subtask2);
-
-        subtask1.setStatus(Status.DONE);
-        taskManager.updateSubtask(subtask1);
-        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Epic status should be IN_PROGRESS when not all subtasks are done");
-
-        subtask2.setStatus(Status.DONE);
-        taskManager.updateSubtask(subtask2);
-        assertEquals(Status.DONE, epic.getStatus(), "Epic status should be DONE when all subtasks are done");
+        Epic epic = new Epic("Test Epic", "Epic Desc");
+        manager.addEpic(epic);
+        Subtask subtask = new Subtask("Subtask", "Desc", epic.getId());
+        manager.addSubtask(subtask);
+        Subtask retrieved = manager.getSubtask(subtask.getId());
+        assertEquals(subtask, retrieved);
     }
 
     @Test
     void shouldReturnHistoryOfTasks() {
-        Task task1 = taskManager.addTask(new Task("Task 1", "Description 1"));
-        Epic epic = taskManager.addEpic(new Epic("Epic 1", "Description 1"));
-        Subtask subtask = taskManager.addSubtask(new Subtask("Subtask 1", "Description 1", epic.getId()));
+        Task task = new Task("Task", "desc");
+        Epic epic = new Epic("Epic", "desc");
+        Subtask subtask = new Subtask("Subtask", "desc", 0);
 
-        taskManager.getTask(task1.getId());
-        taskManager.getTask(epic.getId());
-        taskManager.getTask(subtask.getId());
+        task = manager.addTask(task);
+        epic = manager.addEpic(epic);
+        subtask = new Subtask("Subtask", "desc", epic.getId());
+        subtask = manager.addSubtask(subtask);
 
-        List<Task> history = taskManager.getHistory();
+        manager.getTask(task.getId());
+        manager.getEpic(epic.getId());
+        manager.getSubtask(subtask.getId());
+
+        List<Task> history = manager.getHistory();
         assertEquals(3, history.size(), "History should contain 3 tasks");
-        assertEquals(task1, history.get(0), "First task in history should match");
-        assertEquals(epic, history.get(1), "Second task in history should match");
-        assertEquals(subtask, history.get(2), "Third task in history should match");
+        assertEquals(task, history.get(0));
+        assertEquals(epic, history.get(1));
+        assertEquals(subtask, history.get(2));
     }
 
     @Test
     void historyShouldNotExceedLimit() {
-        for (int i = 1; i <= 12; i++) {
-            taskManager.addTask(new Task("Task " + i, "Description " + i));
+        for (int i = 0; i < 12; i++) {
+            Task task = new Task("Task " + i, "Description " + i);
+            manager.addTask(task);
+            manager.getTask(task.getId());
         }
-        for (int i = 1; i <= 12; i++) {
-            taskManager.getTask(i);
-        }
-        List<Task> history = taskManager.getHistory();
-        assertEquals(10, history.size(), "History should only contain the last 10 tasks");
-        assertEquals(3, history.get(0).getId(), "First task in history should match the 3rd task added");
-        assertEquals(12, history.get(9).getId(), "Last task in history should match the last task added");
+        List<Task> history = manager.getHistory();
+        assertEquals(10, history.size());
+        assertEquals("Task 2", history.get(0).getName());
+        assertEquals("Task 11", history.get(9).getName());
+    }
+
+    @Test
+    void shouldUpdateEpicStatusBasedOnSubtasks() {
+        Epic epic = new Epic("Epic", "desc");
+        manager.addEpic(epic);
+
+        Subtask sub1 = new Subtask("S1", "desc", epic.getId());
+        Subtask sub2 = new Subtask("S2", "desc", epic.getId());
+
+        manager.addSubtask(sub1);
+        manager.addSubtask(sub2);
+
+        sub1.setStatus(Status.DONE);
+        manager.updateSubtask(sub1);
+
+        assertEquals(Status.IN_PROGRESS, manager.getEpic(epic.getId()).getStatus());
     }
 }

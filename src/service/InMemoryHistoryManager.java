@@ -10,8 +10,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        // Убираем предыдущую копию, если такая уже есть, чтобы избежать дублирования.
-        history.removeIf(t -> t.getId() == task.getId());
+        // Просто добавляем задачу в конец истории
         history.add(task);
         // Если количество задач превышает 10, удаляем самые старые.
         while (history.size() > 10) {

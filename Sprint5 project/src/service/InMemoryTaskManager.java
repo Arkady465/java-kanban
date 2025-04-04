@@ -8,9 +8,9 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
-    private int idCounter = 0;
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final HistoryManager historyManager = Managers.getDefaultHistory();
+    protected int idCounter = 0;
 
     @Override
     public Task addTask(Task task) {
@@ -116,7 +116,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (task == null) {
             return;
         }
-
         if (task instanceof Subtask) {
             Subtask subtask = (Subtask) task;
             Task epic = tasks.get(subtask.getEpicID());
@@ -124,9 +123,7 @@ public class InMemoryTaskManager implements TaskManager {
                 ((Epic) epic).getSubtaskList().remove(subtask);
                 updateEpicStatus((Epic) epic);
             }
-        }
-
-        else if (task instanceof Epic) {
+        } else if (task instanceof Epic) {
             Epic epic = (Epic) task;
             for (Subtask subtask : epic.getSubtaskList()) {
                 tasks.remove(subtask.getId());
@@ -178,31 +175,36 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void updateEpicStatus(Epic epic) {
+    protected void updateEpicStatus(Epic epic) {
         List<Subtask> subtasks = epic.getSubtaskList();
         if (subtasks.isEmpty()) {
-            epic.setStatus(model.Status.NEW);
+            epic.setStatus(Status.NEW);
             return;
         }
-
         boolean allDone = true;
         boolean anyInProgress = false;
-
         for (Subtask subtask : subtasks) {
-            if (subtask.getStatus() == model.Status.NEW) {
+            if (subtask.getStatus() == Status.NEW) {
                 allDone = false;
-            } else if (subtask.getStatus() == model.Status.IN_PROGRESS) {
+            } else if (subtask.getStatus() == Status.IN_PROGRESS) {
                 allDone = false;
                 anyInProgress = true;
             }
         }
-
         if (allDone) {
-            epic.setStatus(model.Status.DONE);
+            epic.setStatus(Status.DONE);
         } else if (anyInProgress) {
-            epic.setStatus(model.Status.IN_PROGRESS);
+            epic.setStatus(Status.IN_PROGRESS);
         } else {
-            epic.setStatus(model.Status.NEW);
+            epic.setStatus(Status.NEW);
         }
+    }
+
+    protected void addRestoredTask(Task task) {
+        tasks.put(task.getId(), task);
+    }
+
+    protected void setIdCounter(int value) {
+        idCounter = value;
     }
 }
