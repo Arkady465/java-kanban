@@ -2,11 +2,16 @@ package service;
 
 import model.*;
 
-import java.time.LocalDateTime;
 import java.time.Duration;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class InMemoryTaskManager implements TaskManager {
+
     protected final Map<Integer, Task> tasks = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     protected final Map<Integer, Epic> epics = new HashMap<>();
@@ -15,11 +20,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Храним задачи с заданным startTime в отсортированном порядке
     protected final TreeSet<Task> prioritizedTasks = new TreeSet<>((t1, t2) -> {
-        if (t1.getStartTime() == null && t2.getStartTime() == null) return Integer.compare(t1.getId(), t2.getId());
-        if (t1.getStartTime() == null) return 1;
-        if (t2.getStartTime() == null) return -1;
+        if (t1.getStartTime() == null && t2.getStartTime() == null) {
+            return Integer.compare(t1.getId(), t2.getId());
+        }
+        if (t1.getStartTime() == null) {
+            return 1;
+        }
+        if (t2.getStartTime() == null) {
+            return -1;
+        }
         int cmp = t1.getStartTime().compareTo(t2.getStartTime());
-        return cmp == 0 ? Integer.compare(t1.getId(), t2.getId()) : cmp;
+        return (cmp == 0) ? Integer.compare(t1.getId(), t2.getId()) : cmp;
     });
 
     private int generateId() {
@@ -108,10 +119,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic != null) {
             epic.addSubtask(subtask);
             updateEpicStatus(epic);
-            prioritizedTasks.remove(epic);
-            if(epic.getStartTime() != null) {
-                prioritizedTasks.add(epic);
-            }
         }
         if (subtask.getStartTime() != null) {
             prioritizedTasks.add(subtask);
@@ -157,10 +164,6 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             epic.clearSubtasks();
             updateEpicStatus(epic);
-            prioritizedTasks.remove(epic);
-            if(epic.getStartTime() != null) {
-                prioritizedTasks.add(epic);
-            }
         }
         prioritizedTasks.removeIf(t -> t.getType() == TaskType.SUBTASK);
     }
@@ -194,10 +197,6 @@ public class InMemoryTaskManager implements TaskManager {
             prioritizedTasks.remove(subtask);
             if (epic != null) {
                 updateEpicStatus(epic);
-                prioritizedTasks.remove(epic);
-                if(epic.getStartTime() != null) {
-                    prioritizedTasks.add(epic);
-                }
             }
         }
     }
@@ -232,10 +231,6 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = epics.get(subtask.getEpicID());
             if (epic != null) {
                 updateEpicStatus(epic);
-                prioritizedTasks.remove(epic);
-                if(epic.getStartTime() != null) {
-                    prioritizedTasks.add(epic);
-                }
             }
             prioritizedTasks.removeIf(t -> t.getId() == subtask.getId());
             if (subtask.getStartTime() != null) {
@@ -253,7 +248,7 @@ public class InMemoryTaskManager implements TaskManager {
             epics.put(epic.getId(), epic);
             updateEpicStatus(epic);
             prioritizedTasks.removeIf(t -> t.getId() == epic.getId());
-            if(epic.getStartTime() != null) {
+            if (epic.getStartTime() != null) {
                 prioritizedTasks.add(epic);
             }
             return epic;
@@ -278,8 +273,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     // Проверка пересечения двух задач (если у обеих заданы startTime и duration)
     public boolean tasksIntersect(Task t1, Task t2) {
-        if(t1.getStartTime() == null || t1.getDuration() == null ||
-                t2.getStartTime() == null || t2.getDuration() == null) return false;
+        if (t1.getStartTime() == null || t1.getDuration() == null ||
+                t2.getStartTime() == null || t2.getDuration() == null) {
+            return false;
+        }
         LocalDateTime start1 = t1.getStartTime();
         LocalDateTime end1 = t1.getEndTime();
         LocalDateTime start2 = t2.getStartTime();
@@ -289,11 +286,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     // При добавлении или обновлении проверяем, пересекается ли задача с уже существующими
     public void checkIntersection(Task task) {
-        if(task.getStartTime() == null || task.getDuration() == null) return;
+        if (task.getStartTime() == null || task.getDuration() == null) {
+            return;
+        }
         boolean intersect = getPrioritizedTasks().stream()
                 .filter(t -> t.getId() != task.getId())
                 .anyMatch(t -> tasksIntersect(task, t));
-        if(intersect) {
+        if (intersect) {
             throw new RuntimeException("Task time intersects with another task: " + task);
         }
     }
@@ -320,13 +319,13 @@ public class InMemoryTaskManager implements TaskManager {
             if (subtask.getStatus() != Status.DONE) {
                 allDone = false;
             }
-            if(subtask.getStartTime() != null && subtask.getDuration() != null) {
+            if (subtask.getStartTime() != null && subtask.getDuration() != null) {
                 LocalDateTime subStart = subtask.getStartTime();
                 LocalDateTime subEnd = subtask.getEndTime();
-                if(minStart == null || subStart.isBefore(minStart)) {
+                if (minStart == null || subStart.isBefore(minStart)) {
                     minStart = subStart;
                 }
-                if(maxEnd == null || subEnd.isAfter(maxEnd)) {
+                if (maxEnd == null || subEnd.isAfter(maxEnd)) {
                     maxEnd = subEnd;
                 }
                 totalDuration = totalDuration.plus(subtask.getDuration());
