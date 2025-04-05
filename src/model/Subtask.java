@@ -17,7 +17,7 @@ public class Subtask extends Task {
         return epicId;
     }
 
-    // Метод, используемый менеджером для получения id эпика
+    // Альтернативный метод для получения id эпика
     public int getEpicID() {
         return epicId;
     }
@@ -27,8 +27,11 @@ public class Subtask extends Task {
         return TaskType.SUBTASK;
     }
 
+    // Сериализация: id, тип, имя, статус, описание, startTime, duration, epicId
     @Override
     public String toString() {
-        return id + "," + getType() + "," + name + "," + status + "," + description + "," + epicId;
+        String start = (startTime != null) ? startTime.toString() : "null";
+        String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
+        return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur + "," + epicId;
     }
 }

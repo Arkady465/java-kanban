@@ -1,11 +1,14 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class Epic extends Task {
     private final ArrayList<Subtask> subtasks = new ArrayList<>();
+    private LocalDateTime endTime; // вычисляемое поле
 
     public Epic(String name, String description) {
         super(name, description);
@@ -36,9 +39,21 @@ public class Epic extends Task {
         subtasks.clear();
     }
 
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    // Сериализация: id, тип, имя, статус, описание, startTime, duration, endTime
     @Override
     public String toString() {
-        return id + "," + getType() + "," + name + "," + status + "," + description;
+        String start = (startTime != null) ? startTime.toString() : "null";
+        String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
+        String end = (endTime != null) ? endTime.toString() : "null";
+        return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur + "," + end;
     }
 
     @Override
@@ -53,4 +68,3 @@ public class Epic extends Task {
         return Objects.hash(super.hashCode(), subtasks);
     }
 }
-
