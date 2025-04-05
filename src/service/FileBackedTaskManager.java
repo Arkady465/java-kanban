@@ -3,12 +3,18 @@ package service;
 import model.*;
 import exception.ManagerSaveException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
+
     private final File file;
 
     public FileBackedTaskManager(File file) {
@@ -31,6 +37,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             String line;
             while ((line = reader.readLine()) != null && !line.isEmpty()) {
                 Task task = fromString(line);
+                // Добавляем задачу в зависимости от типа
                 if (task.getType() == TaskType.TASK) {
                     manager.addTask(task);
                 } else if (task.getType() == TaskType.EPIC) {
@@ -47,6 +54,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     // Обновлённый метод десериализации с учётом новых полей
     private static Task fromString(String value) {
+        // Ожидаемые форматы:
+        // Task: id, TASK, name, status, description, startTime, duration
+        // Epic: id, EPIC, name, status, description, startTime, duration, endTime
+        // Subtask: id, SUBTASK, name, status, description, startTime, duration, epicId
         String[] parts = value.split(",");
         int id = Integer.parseInt(parts[0]);
         TaskType type = TaskType.valueOf(parts[1]);
@@ -119,7 +130,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         prioritizedTasks.removeIf(t -> t.getId() == task.getId());
         checkIntersection(task);
         Task t = super.updateTask(task);
-        if(task.getStartTime() != null) {
+        if (task.getStartTime() != null) {
             prioritizedTasks.add(task);
         }
         save();
@@ -131,7 +142,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         prioritizedTasks.removeIf(t -> t.getId() == subtask.getId());
         checkIntersection(subtask);
         Subtask s = super.updateSubtask(subtask);
-        if(subtask.getStartTime() != null) {
+        if (subtask.getStartTime() != null) {
             prioritizedTasks.add(subtask);
         }
         save();
@@ -142,7 +153,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     public Epic updateEpic(Epic epic) {
         prioritizedTasks.removeIf(t -> t.getId() == epic.getId());
         Epic e = super.updateEpic(epic);
-        if(epic.getStartTime() != null) {
+        if (epic.getStartTime() != null) {
             prioritizedTasks.add(epic);
         }
         save();
