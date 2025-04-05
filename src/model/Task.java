@@ -28,20 +28,53 @@ public class Task {
         return TaskType.TASK;
     }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public Status getStatus() { return status; }
-    public void setStatus(Status status) { this.status = status; }
+    public String getName() {
+        return name;
+    }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Duration getDuration() { return duration; }
-    public void setDuration(Duration duration) { this.duration = duration; }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
 
     public LocalDateTime getEndTime() {
         if (startTime != null && duration != null) {
@@ -52,8 +85,12 @@ public class Task {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
-        if(!(o instanceof Task)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Task)) {
+            return false;
+        }
         Task task = (Task) o;
         return id == task.id;
     }
