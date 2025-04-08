@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Comparator;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -18,20 +20,14 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HistoryManager historyManager = Managers.getDefaultHistory();
     protected int idCounter = 1;
 
-    // Храним задачи с заданным startTime в отсортированном порядке
-    protected final TreeSet<Task> prioritizedTasks = new TreeSet<>((t1, t2) -> {
-        if (t1.getStartTime() == null && t2.getStartTime() == null) {
-            return Integer.compare(t1.getId(), t2.getId());
-        }
-        if (t1.getStartTime() == null) {
-            return 1;
-        }
-        if (t2.getStartTime() == null) {
-            return -1;
-        }
-        int cmp = t1.getStartTime().compareTo(t2.getStartTime());
-        return (cmp == 0) ? Integer.compare(t1.getId(), t2.getId()) : cmp;
-    });
+    // Храним задачи с заданным startTime в отсортированном порядке.
+    // Используем интерфейс SortedSet и статические методы Comparator для создания компаратора,
+    // который сравнивает задачи по startTime с учетом null-значений (nullsLast),
+    // а при равенстве - по id.
+    protected final SortedSet<Task> prioritizedTasks = new TreeSet<>(
+            Comparator.comparing(Task::getStartTime, Comparator.nullsLast(LocalDateTime::compareTo))
+                    .thenComparing(Task::getId)
+    );
 
     private int generateId() {
         return idCounter++;
