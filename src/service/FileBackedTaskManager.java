@@ -1,12 +1,24 @@
 package service;
 
-import model.*;
+import model.Epic;
+import model.Status;
+import model.Subtask;
+import model.Task;
+import model.TaskType;
 import exception.ManagerSaveException;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
+
     private final File file;
 
     public FileBackedTaskManager(File file) {
@@ -25,11 +37,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = Managers.getFileBacked(file);
-        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(file, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null && !line.isEmpty()) {
                 Task task = fromString(line);
-                // Добавляем задачу в зависимости от типа
                 if (task.getType() == TaskType.TASK) {
                     manager.addTask(task);
                 } else if (task.getType() == TaskType.EPIC) {
@@ -44,6 +56,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
+    // Метод десериализации с учетом новых полей:
+    // Task: id, TASK, name, status, description, startTime, duration
+    // Epic: id, EPIC, name, status, description, startTime, duration, endTime
+    // Subtask: id, SUBTASK, name, status, description, startTime, duration, epicId
     private static Task fromString(String value) {
         String[] parts = value.split(",");
         int id = Integer.parseInt(parts[0]);
@@ -51,7 +67,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = parts[2];
         Status status = Status.valueOf(parts[3]);
         String description = parts[4];
-
+        LocalDateTime startTime = null;
+        Duration duration = null;
+        if (parts.length > 5 && !parts[5].equals("null")) {
+            startTime = LocalDateTime.parse(parts[5]);
+        }
+        if (parts.length > 6 && !parts[6].equals("null")) {
+            duration = Duration.ofMinutes(Long.parseLong(parts[6]));
+        }
         Task task;
         switch (type) {
             case TASK:
@@ -61,7 +84,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 task = new Epic(name, description);
                 break;
             case SUBTASK:
-                int epicId = Integer.parseInt(parts[5]);
+                int epicId = Integer.parseInt(parts[7]);
                 task = new Subtask(name, description, epicId);
                 break;
             default:
@@ -69,6 +92,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
         task.setId(id);
         task.setStatus(status);
+        task.setStartTime(startTime);
+        task.setDuration(duration);
+        if (type == TaskType.EPIC && parts.length > 7) {
+            Epic epic = (Epic) task;
+            if (!parts[7].equals("null")) {
+                epic.setEndTime(LocalDateTime.parse(parts[7]));
+            }
+        }
         return task;
     }
 
