@@ -1,6 +1,10 @@
 package service;
 
-import model.*;
+import model.Epic;
+import model.Status;
+import model.Subtask;
+import model.Task;
+import model.TaskType;
 import exception.ManagerSaveException;
 
 import java.io.BufferedReader;
@@ -33,11 +37,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = Managers.getFileBacked(file);
-        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader(file, StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null && !line.isEmpty()) {
                 Task task = fromString(line);
-                // Добавляем задачу в зависимости от типа
                 if (task.getType() == TaskType.TASK) {
                     manager.addTask(task);
                 } else if (task.getType() == TaskType.EPIC) {
@@ -52,12 +56,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return manager;
     }
 
-    // Обновлённый метод десериализации с учётом новых полей
+    // Метод десериализации с учетом новых полей:
+    // Task: id, TASK, name, status, description, startTime, duration
+    // Epic: id, EPIC, name, status, description, startTime, duration, endTime
+    // Subtask: id, SUBTASK, name, status, description, startTime, duration, epicId
     private static Task fromString(String value) {
-        // Ожидаемые форматы:
-        // Task: id, TASK, name, status, description, startTime, duration
-        // Epic: id, EPIC, name, status, description, startTime, duration, endTime
-        // Subtask: id, SUBTASK, name, status, description, startTime, duration, epicId
         String[] parts = value.split(",");
         int id = Integer.parseInt(parts[0]);
         TaskType type = TaskType.valueOf(parts[1]);
@@ -72,7 +75,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         if (parts.length > 6 && !parts[6].equals("null")) {
             duration = Duration.ofMinutes(Long.parseLong(parts[6]));
         }
-
         Task task;
         switch (type) {
             case TASK:
@@ -103,7 +105,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public Task addTask(Task task) {
-        checkIntersection(task);
         Task t = super.addTask(task);
         save();
         return t;
@@ -118,7 +119,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public Subtask addSubtask(Subtask subtask) {
-        checkIntersection(subtask);
         Subtask s = super.addSubtask(subtask);
         save();
         return s;
@@ -126,36 +126,21 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     @Override
     public Task updateTask(Task task) {
-        // При обновлении удаляем старую версию из приоритетного набора
-        prioritizedTasks.removeIf(t -> t.getId() == task.getId());
-        checkIntersection(task);
         Task t = super.updateTask(task);
-        if (task.getStartTime() != null) {
-            prioritizedTasks.add(task);
-        }
         save();
         return t;
     }
 
     @Override
     public Subtask updateSubtask(Subtask subtask) {
-        prioritizedTasks.removeIf(t -> t.getId() == subtask.getId());
-        checkIntersection(subtask);
         Subtask s = super.updateSubtask(subtask);
-        if (subtask.getStartTime() != null) {
-            prioritizedTasks.add(subtask);
-        }
         save();
         return s;
     }
 
     @Override
     public Epic updateEpic(Epic epic) {
-        prioritizedTasks.removeIf(t -> t.getId() == epic.getId());
         Epic e = super.updateEpic(epic);
-        if (epic.getStartTime() != null) {
-            prioritizedTasks.add(epic);
-        }
         save();
         return e;
     }
@@ -163,21 +148,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void deleteTask(int id) {
         super.deleteTask(id);
-        prioritizedTasks.removeIf(t -> t.getId() == id);
         save();
     }
 
     @Override
     public void deleteEpic(int id) {
         super.deleteEpic(id);
-        prioritizedTasks.removeIf(t -> t.getId() == id);
         save();
     }
 
     @Override
     public void deleteSubtask(int id) {
         super.deleteSubtask(id);
-        prioritizedTasks.removeIf(t -> t.getId() == id);
         save();
     }
 }
