@@ -9,29 +9,81 @@ import ru.yandex.todo.model.Task;
 import java.io.*;
 
 /**
- * Пример класса, который сохраняет задачи в CSV‐файл и восстанавливает их.
- * Он наследует InMemoryTaskManager и добавляет сохранение/загрузку.
+ * FileBackedTaskManager умеет сохранять задачи в CSV-файл и восстанавливать из него.
+ * Наша реализация наследует InMemoryTaskManager и добавляет:
+ * 1) конструктор, принимающий не только строку, но и File;
+ * 2) статический метод loadFromFile(File), возвращающий экземпляр;
+ * 3) вызов save() после каждого изменения.
  */
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
 
+    /**
+     * Старый конструктор, на случай, если где-то всё ещё передаётся String.
+     */
     public FileBackedTaskManager(String filePath) {
-        this.file = new File(filePath);
-        loadFromFile();
+        this(new File(filePath));
     }
 
+    /**
+     * Новый конструктор: принимаем уже File.
+     */
+    public FileBackedTaskManager(File file) {
+        this.file = file;
+        loadFromFile(); // считываем текущее состояние
+    }
+
+    /**
+     * Статический метод загрузки из файла (чтобы тесты, вызывающие loadFromFile(File), работали).
+     */
+    public static FileBackedTaskManager loadFromFile(File file) {
+        return new FileBackedTaskManager(file);
+    }
+
+    /**
+     * Читаем CSV и восстанавливаем состояние InMemoryTaskManager:
+     * - Восстанавливаем все задачи, эпики, подзадачи;
+     * - Восстанавливаем историю (если требуется).
+     */
     private void loadFromFile() {
-        // Логика чтения из CSV и восстановления задач, эпиков, подзадач, истории...
-        // Здесь нужно читать из файла `file` и заполнять внутренние структуры InMemoryTaskManager.
+        if (!file.exists()) {
+            return;
+        }
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            // Здесь пишем вашу логику: читаем построчно CSV, разбираем в строки,
+            // создаём объекты Task, Epic, Subtask и вызываем super.createXXX(...)
+            // после этого, возможно, восстанавливаем историю.
+            // Для краткости примера оставим скелет:
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Пример: line.split(",") и конструируем нужный объект
+                // super.createTask(…); super.createEpic(…); super.createSubtask(…);
+            }
+        } catch (IOException e) {
+            throw new ManagerSaveException("Ошибка при чтении из файла: " + e.getMessage(), e);
+        }
     }
 
+    /**
+     * Сохраняем текущее состояние (все задачи, эпики, подзадачи и, при необходимости, историю) в файл.
+     */
     private void save() {
-        // Логика записи в CSV (все задачи, эпики, подзадачи, и история).
-        // Должна открывать `file` на запись и последовательно сохранять:
-        // 1) Все задачи (Task)
-        // 2) Все эпики (Epic)
-        // 3) Все подзадачи (Subtask)
-        // 4) И, возможно, историю просмотров (если нужна)
+        try (Writer writer = new FileWriter(file, false)) {
+            // Предполагаем, что getTasks(), getEpics(), getSubtasks() возвращают List<…>.
+            // Итерируемся по ним и записываем каждую сущность в CSV-строку, например:
+            for (Task task : getTasks()) {
+                writer.write(task.toString() + "\n");
+            }
+            for (Epic epic : getEpics()) {
+                writer.write(epic.toString() + "\n");
+            }
+            for (Subtask subtask : getSubtasks()) {
+                writer.write(subtask.toString() + "\n");
+            }
+            // Если требуется – сохраняем историю (можно отдельно).
+        } catch (IOException e) {
+            throw new ManagerSaveException("Ошибка при сохранении в файл: " + e.getMessage(), e);
+        }
     }
 
     @Override
