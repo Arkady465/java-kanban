@@ -1,12 +1,9 @@
 package service;
 
 import model.Epic;
-import model.Status;
 import model.Subtask;
 import model.Task;
-import model.TaskType;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -25,7 +22,6 @@ public class InMemoryTaskManager implements TaskManager {
     private final HistoryManager historyManager = new InMemoryHistoryManager();
     private final TreeSet<Task> prioritizedSet = new TreeSet<>(
             Comparator.comparing((Task t) -> {
-                // nullsLast, чтобы задачи без startTime падали в конец
                 LocalDateTime st = t.getStartTime();
                 return (st == null) ? LocalDateTime.MAX : st;
             })
@@ -41,7 +37,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getId() == 0) {
             task.setId(idCounter++);
         } else {
-            // Если уже есть id – убедимся, что удаляем старую задачу из коллекций
             if (tasks.containsKey(task.getId())) {
                 prioritizedSet.remove(tasks.get(task.getId()));
             }
@@ -87,7 +82,6 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setId(idCounter++);
         } else {
             if (epics.containsKey(epic.getId())) {
-                // при “обновлении” эпика будем сохранять старые подзадачи
                 Epic old = epics.get(epic.getId());
                 for (Subtask s : old.getSubtaskList()) {
                     epic.addSubtask(s);
@@ -110,7 +104,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpic(int id) {
         Epic removed = epics.remove(id);
         if (removed != null) {
-            // при удалении эпика – удаляем все его подзадачи
             for (Subtask s : removed.getSubtaskList()) {
                 subtasks.remove(s.getId());
                 prioritizedSet.remove(s);
@@ -191,19 +184,14 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> getPrioritizedTasks() {
-        // возвращаем список, потому что тесты проверяют get(0), get(1) и т. д.
         return new ArrayList<>(prioritizedSet);
     }
 
     // ===== Вспомогательные методы =====
 
-    /**
-     * Проверяет пересечения по времени (startTime+duration) для Task и Subtask.
-     * Если пересечение найдётся – кидаем RuntimeException.
-     */
     private void validateTaskTime(Task newTask) {
         if (newTask.getStartTime() == null || newTask.getDuration() == null) {
-            return; // если нет расписания, пересечения быть не может
+            return;
         }
         LocalDateTime newStart = newTask.getStartTime();
         LocalDateTime newEnd = newTask.getEndTime();
