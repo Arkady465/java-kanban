@@ -1,7 +1,8 @@
 package model;
 
 /**
- * Тип задачи – для полноты, хотя в базовом варианте может не использоваться.
+ * Тип задачи: TASK, SUBTASK или EPIC.
+ * Нужен для того, чтобы InMemoryTaskManager мог различать “чьи” задачи.
  */
 public enum TaskType {
     TASK,

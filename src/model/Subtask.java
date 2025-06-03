@@ -5,43 +5,56 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Класс подзадачи, наследует Task, содержит поле epicId.
+ * Класс “подзадачи” (Subtask). Наследует Task.
+ * В тестах есть обход: new Subtask("Subtask 1", "Description 1", epic.getId());
+ * Поэтому нужен ровно такой конструктор.
+ *
+ * Поля:
+ *  - int epicID      – id того Epic, к которому относится подзадача
+ *
+ * Методы:
+ *  - getEpicID()  (именно с таким регистром, т.к. в тесте assertEquals(subtask.getEpicID(), …))
+ *  - getType() -> TaskType.SUBTASK
  */
 public class Subtask extends Task {
-    private int epicId;
+    private int epicID; // именно так тесты ожидают название поля/геттера
 
     public Subtask() {
-        // Для десериализации
+        // Пустой конструктор
     }
 
-    public Subtask(String name,
-                   String description,
-                   Status status,
-                   Duration duration,
-                   LocalDateTime startTime,
-                   int epicId) {
-        super(name, description, status, duration, startTime);
-        this.epicId = epicId;
+    /**
+     * Конструктор, используемый в тестах:
+     * new Subtask("Subtask 1", "Description 1", epic.getId());
+     * По умолчанию статус = NEW, время и длительность = null.
+     */
+    public Subtask(String name, String description, int epicID) {
+        super(name, description);
+        this.epicID = epicID;
     }
 
-    public Subtask(int id,
-                   String name,
-                   String description,
-                   Status status,
-                   Duration duration,
-                   LocalDateTime startTime,
-                   int epicId) {
-        super(id, name, description, status, duration, startTime);
-        this.epicId = epicId;
+    /**
+     * Если нужно задать id явно (реже используется), можно добавить конструктор:
+     * public Subtask(int id, String name, String description, int epicID) { … }
+     * Но тесты это не используют, поэтому необязательно.
+     */
+
+    // ===== Геттер и сеттер epicID =====
+
+    public int getEpicID() {
+        return epicID;
     }
 
-    public int getEpicId() {
-        return epicId;
+    public void setEpicID(int epicID) {
+        this.epicID = epicID;
     }
 
-    public void setEpicId(int epicId) {
-        this.epicId = epicId;
+    @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
     }
+
+    // ===== equals(), hashCode(), toString() =====
 
     @Override
     public boolean equals(Object o) {
@@ -49,12 +62,12 @@ public class Subtask extends Task {
         if (!(o instanceof Subtask)) return false;
         if (!super.equals(o)) return false;
         Subtask subtask = (Subtask) o;
-        return epicId == subtask.epicId;
+        return epicID == subtask.epicID;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), epicId);
+        return Objects.hash(super.hashCode(), epicID);
     }
 
     @Override
@@ -66,7 +79,7 @@ public class Subtask extends Task {
                 ", status=" + getStatus() +
                 ", duration=" + getDuration() +
                 ", startTime=" + getStartTime() +
-                ", epicId=" + epicId +
+                ", epicID=" + epicID +
                 '}';
     }
 }

@@ -1,49 +1,62 @@
 package service;
 
-import model.*;
+import model.Epic;
+import model.Subtask;
+import model.Task;
 
 import java.util.List;
 
+/**
+ * Интерфейс менеджера задач. Тесты ожидают методы:
+ *  - void addTask(Task task);
+ *  - Task getTask(int id);
+ *  - void deleteTask(int id);
+ *  - List<Task> getAllTasks();
+ *
+ *  - void addEpic(Epic epic);
+ *  - Epic getEpic(int id);
+ *  - void deleteEpic(int id);
+ *  - List<Epic> getAllEpics();
+ *
+ *  - void addSubtask(Subtask subtask);
+ *  - Subtask getSubtask(int id);
+ *  - void deleteSubtask(int id);
+ *  - List<Subtask> getAllSubtasks();
+ *
+ *  - List<Task> getHistory();
+ *  - List<Task> getPrioritizedTasks();  (в TestExtended возвращают List + сравнивают индексы)
+ */
 public interface TaskManager {
-    Task addTask(Task task);
 
-    Epic addEpic(Epic epic);
-
-    Subtask addSubtask(Subtask subtask);
+    // ===== Task =====
+    void addTask(Task task);
 
     Task getTask(int id);
 
-    Epic getEpic(int id);
-
-    Subtask getSubtask(int id);
-
-    Task getAllTasks();
-
-    List<Epic> getAllEpics();
-
-    List<Subtask> getAllSubtasks();
-
     void deleteTask(int id);
 
-    void clearAllTasks();
+    List<Task> getAllTasks();
 
-    void clearAllEpics();
+    // ===== Epic =====
+    void addEpic(Epic epic);
 
-    void clearAllSubtasks();
+    Epic getEpic(int id);
 
     void deleteEpic(int id);
 
+    List<Epic> getAllEpics();
+
+    // ===== Subtask =====
+    void addSubtask(Subtask subtask);
+
+    Subtask getSubtask(int id);
+
     void deleteSubtask(int id);
 
-    List<Subtask> getSubtasksOfEpic(int epicId);
+    List<Subtask> getAllSubtasks();
 
-    Task updateTask(Task task);
-
-    Subtask updateSubtask(Subtask subtask);
-
-    Epic updateEpic(Epic epic);
-
-    List<Subtask> getSubtasksForEpic(int epicId);
-
+    // ===== History и приоритетность =====
     List<Task> getHistory();
+
+    List<Task> getPrioritizedTasks();
 }

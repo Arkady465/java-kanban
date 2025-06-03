@@ -7,49 +7,80 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Эпик (Epic) — задача, содержащая список подзадач.
- * Статус и время рассчитываются на основе подзадач в менеджере.
+ * Класс “эпик” (Epic). Наследует Task, но при этом содержит список подзадач.
+ *
+ * В тестах ожидаются следующие методы:
+ *  - конструктор Epic(String name, String description)
+ *  - addSubtask(Subtask)
+ *  - removeSubtask(int subtaskId)
+ *  - getSubtaskList() возвращает List<Subtask>
+ *  - clearSubtasks()
+ *  - getEndTime() вычисляет максимальное endTime от всех подзадач (или null, если списка нет)
+ *  - getType() -> TaskType.EPIC
  */
 public class Epic extends Task {
-    // Список id подзадач
-    private List<Integer> subtaskIds = new ArrayList<>();
+    private final List<Subtask> subtaskList = new ArrayList<>();
 
     public Epic() {
-        // Для десериализации
+        // Пустой конструктор
     }
 
     public Epic(String name, String description) {
-        super(name, description, Status.NEW, null, null);
+        super(name, description);
+        // Статус по умолчанию = NEW. Время/длительность – null, пока нет подзадач.
     }
 
-    public Epic(int id,
-                String name,
-                String description,
-                Status status,
-                Duration duration,
-                LocalDateTime startTime,
-                List<Integer> subtaskIds) {
-        super(id, name, description, status, duration, startTime);
-        this.subtaskIds = new ArrayList<>(subtaskIds);
-    }
-
-    public List<Integer> getSubtaskIds() {
-        return new ArrayList<>(subtaskIds);
-    }
-
-    public void setSubtaskIds(List<Integer> subtaskIds) {
-        this.subtaskIds = new ArrayList<>(subtaskIds);
-    }
-
-    public void addSubtaskId(int subtaskId) {
-        if (!subtaskIds.contains(subtaskId)) {
-            subtaskIds.add(subtaskId);
+    /**
+     * Добавляет подзадачу в этот эпик:
+     */
+    public void addSubtask(Subtask subtask) {
+        if (subtask != null && !subtaskList.contains(subtask)) {
+            subtaskList.add(subtask);
         }
     }
 
-    public void removeSubtaskId(int subtaskId) {
-        subtaskIds.remove(Integer.valueOf(subtaskId));
+    /**
+     * Удаляет подзадачу по ее id (если она есть).
+     */
+    public void removeSubtask(int subtaskId) {
+        subtaskList.removeIf(s -> s.getId() == subtaskId);
     }
+
+    /**
+     * Возвращает список подзадач этого эпика.
+     */
+    public List<Subtask> getSubtaskList() {
+        return new ArrayList<>(subtaskList);
+    }
+
+    /**
+     * Очищает весь список подзадач (например, при удалении эпика).
+     */
+    public void clearSubtasks() {
+        subtaskList.clear();
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
+
+    /**
+     * Возвращает максимальный endTime среди всех подзадач или null, если ни у одной подзадачи нет времени.
+     */
+    @Override
+    public LocalDateTime getEndTime() {
+        LocalDateTime max = null;
+        for (Subtask s : subtaskList) {
+            LocalDateTime e = s.getEndTime();
+            if (e != null && (max == null || e.isAfter(max))) {
+                max = e;
+            }
+        }
+        return max;
+    }
+
+    // ===== equals(), hashCode(), toString() =====
 
     @Override
     public boolean equals(Object o) {
@@ -57,12 +88,12 @@ public class Epic extends Task {
         if (!(o instanceof Epic)) return false;
         if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return Objects.equals(subtaskIds, epic.subtaskIds);
+        return Objects.equals(subtaskList, epic.subtaskList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), subtaskIds);
+        return Objects.hash(super.hashCode(), subtaskList);
     }
 
     @Override
@@ -74,7 +105,7 @@ public class Epic extends Task {
                 ", status=" + getStatus() +
                 ", duration=" + getDuration() +
                 ", startTime=" + getStartTime() +
-                ", subtaskIds=" + subtaskIds +
+                ", subtaskList=" + subtaskList +
                 '}';
     }
 }

@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Статусы задачи: NEW, IN_PROGRESS, DONE
+ * Возможные статусы задачи (Task, Subtask, Epic).
  */
 public enum Status {
     NEW,

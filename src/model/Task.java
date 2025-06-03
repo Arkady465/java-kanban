@@ -5,7 +5,23 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Класс базовой задачи.
+ * Базовый класс задачи (Task).
+ *
+ * Конструкторы:
+ *  - Task(String name, String description)               – тесты используют именно этот.
+ *  - Task(int id, String name, String description)       – чтобы присвоить id, если нужно.
+ *
+ * Поля:
+ *  - int id
+ *  - String name
+ *  - String description
+ *  - Status status         (NEW по умолчанию)
+ *  - Duration duration     (по умолчанию null)
+ *  - LocalDateTime startTime (по умолчанию null)
+ *
+ * Методы:
+ *  - getEndTime() возвращает (startTime + duration) или null, если хоть одно из полей null.
+ *  - getType() возвращает TaskType.TASK.
  */
 public class Task {
     private int id;
@@ -16,24 +32,32 @@ public class Task {
     private LocalDateTime startTime;
 
     public Task() {
-        // Для десериализации, если потребуется
+        // Пустой конструктор нужен для десериализации / гибкости
     }
 
-    public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime) {
+    /**
+     * Конструктор, используемый в тестах:
+     * Task task = new Task("Task 1", "Description 1");
+     * По умолчанию статус = NEW, время = null.
+     */
+    public Task(String name, String description) {
         this.name = name;
         this.description = description;
-        this.status = status;
-        this.duration = duration;
-        this.startTime = startTime;
+        this.status = Status.NEW;
+        this.duration = null;
+        this.startTime = null;
     }
 
-    public Task(int id, String name, String description, Status status, Duration duration, LocalDateTime startTime) {
+    /**
+     * Если нужен полный конструктор (например, чтобы явно задать id).
+     */
+    public Task(int id, String name, String description) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.status = status;
-        this.duration = duration;
-        this.startTime = startTime;
+        this.status = Status.NEW;
+        this.duration = null;
+        this.startTime = null;
     }
 
     // ===== Геттеры и сеттеры =====
@@ -84,6 +108,24 @@ public class Task {
 
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
+    }
+
+    /**
+     * Возвращает LocalDateTime конца задачи, как (startTime + duration).
+     * Если хоть одно поле null, возвращает null.
+     */
+    public LocalDateTime getEndTime() {
+        if (startTime == null || duration == null) {
+            return null;
+        }
+        return startTime.plus(duration);
+    }
+
+    /**
+     * Тип задачи — для приоритетной сортировки и фильтров.
+     */
+    public TaskType getType() {
+        return TaskType.TASK;
     }
 
     // ===== equals(), hashCode(), toString() =====
