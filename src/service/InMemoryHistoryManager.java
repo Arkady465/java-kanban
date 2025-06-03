@@ -5,7 +5,7 @@ import model.Task;
 import java.util.*;
 
 /**
- * Реализация HistoryManager с помощью двусвязного списка + HashMap<id, Node>.
+ * Реализация HistoryManager с помощью двусвязного списка + HashMap<Task, Node>.
  * Ограничиваем историю последними 10 элементами.
  */
 public class InMemoryHistoryManager implements HistoryManager {
@@ -21,41 +21,42 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    // Голова (самая «древняя»), хвост (самая «поздняя»)
     private Node head;
     private Node tail;
-    // Быстрый доступ: id → Node
-    private final Map<Integer, Node> nodeById = new HashMap<>();
+    private final Map<Task, Node> nodeByTask = new HashMap<>();
 
     @Override
     public void add(Task task) {
         if (task == null) {
             return;
         }
-        // Если уже есть в истории — удаляем старый узел
-        if (nodeById.containsKey(task.getId())) {
-            removeNode(nodeById.get(task.getId()));
-            nodeById.remove(task.getId());
+        if (nodeByTask.containsKey(task)) {
+            removeNode(nodeByTask.get(task));
+            nodeByTask.remove(task);
         }
-        // Вставляем в конец списка
         Node newNode = new Node(task);
         linkLast(newNode);
-        nodeById.put(task.getId(), newNode);
-
-        // Если длина истории превысила MAX_HISTORY, удаляем голову
-        if (nodeById.size() > MAX_HISTORY) {
+        nodeByTask.put(task, newNode);
+        if (nodeByTask.size() > MAX_HISTORY) {
             Node toRemove = head;
             removeNode(toRemove);
-            nodeById.remove(toRemove.task.getId());
+            nodeByTask.remove(toRemove.task);
         }
     }
 
     @Override
     public void remove(int id) {
-        Node node = nodeById.get(id);
-        if (node != null) {
+        Task found = null;
+        for (Task t : nodeByTask.keySet()) {
+            if (t.getId() == id) {
+                found = t;
+                break;
+            }
+        }
+        if (found != null) {
+            Node node = nodeByTask.get(found);
             removeNode(node);
-            nodeById.remove(id);
+            nodeByTask.remove(found);
         }
     }
 
@@ -69,8 +70,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         return result;
     }
-
-    // Вспомогательные методы работы с двусвязным списком
 
     private void linkLast(Node node) {
         if (head == null) {

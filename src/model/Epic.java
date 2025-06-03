@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Эпик. Внутри хранит список его подзадач.
+ * Эпик. Хранит список его подзадач.
  * При пересчёте статуса и временных границ учитывает все подзадачи.
  */
 public class Epic extends Task {
@@ -24,8 +24,6 @@ public class Epic extends Task {
                 Status status,
                 Duration duration,
                 LocalDateTime startTime) {
-        // В тестах эпик создают только через конструктор с (name, description),
-        // но на случай загрузки из CSV сделаем универсальный конструктор:
         super(id, name, description, status, duration, startTime);
     }
 
@@ -52,7 +50,6 @@ public class Epic extends Task {
 
     @Override
     public LocalDateTime getEndTime() {
-        // Эпик берёт максимум среди подзадач
         LocalDateTime max = null;
         for (Subtask s : subtaskList) {
             LocalDateTime end = s.getEndTime();
@@ -69,9 +66,9 @@ public class Epic extends Task {
     public String toString() {
         return "Epic{" +
                 "id=" + getId() +
-                ", name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", status=" + getStatus() +
+                ", name='" + getName() + '\\'' +
+        ", description='" + getDescription() + '\\'' +
+        ", status=" + getStatus() +
                 ", duration=" + getDuration() +
                 ", startTime=" + getStartTime() +
                 ", subtaskList=" + subtaskList +

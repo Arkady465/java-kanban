@@ -1,7 +1,7 @@
 package model;
 
 /**
- * Типы сущностей: таск, эпик, сабтаск.
+ * Типы сущностей: TASK, EPIC, SUBTASK.
  */
 public enum TaskType {
     TASK,

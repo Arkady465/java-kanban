@@ -28,6 +28,9 @@ import java.util.List;
  *
  *   List<Task> getHistory();
  *   List<Task> getPrioritizedTasks();
+ *
+ *   // Дополнительно для тестов:
+ *   boolean hasIntersection(Task task);
  */
 public interface TaskManager {
 
@@ -64,8 +67,11 @@ public interface TaskManager {
 
     List<Subtask> getAllSubtasks();
 
-    // ===== History и Приоритет =====
+    // ===== History and Prioritized =====
     List<Task> getHistory();
 
     List<Task> getPrioritizedTasks();
+
+    // ===== Extra method for intersection test =====
+    boolean hasIntersection(Task task);
 }

@@ -2,8 +2,6 @@ package service;
 
 /**
  * Фабрика для удобного создания TaskManager.
- * Тесты ожидают getDefault(), getDefaultHistory() и getDefaultTaskManager().
- * Добавиль метод getDefaultFileBacked(path), если нужен FileBackedTaskManager.
  */
 public class Managers {
 
