@@ -241,7 +241,8 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getPrioritizedTasks() {
         return new ArrayList<>(prioritizedSet);
     }
-    
+
+    @Override
     public List<Subtask> getEpicSubtasks(int epicId) {
         Epic epic = epics.get(epicId);
         if (epic == null) {
@@ -283,8 +284,12 @@ public class InMemoryTaskManager implements TaskManager {
         boolean allNew = true;
         boolean allDone = true;
         for (Subtask s : sublist) {
-            if (s.getStatus() != Status.NEW) allNew = false;
-            if (s.getStatus() != Status.DONE) allDone = false;
+            if (s.getStatus() != Status.NEW) {
+                allNew = false;
+            }
+            if (s.getStatus() != Status.DONE) {
+                allDone = false;
+            }
         }
         if (allDone) {
             epic.setStatus(Status.DONE);
