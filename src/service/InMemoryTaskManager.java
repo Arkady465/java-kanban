@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * InMemory реализация TaskManager:
+ * InMemory реализация TaskManager.
  */
 public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Task> tasks = new HashMap<>();
@@ -21,7 +21,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final HistoryManager historyManager = new InMemoryHistoryManager();
 
     /**
-     * Для приоритетов: SortedSet по startTime (null → MAX, то есть идут последними)
+     * Для приоритетов: SortedSet по startTime (null → MAX, то есть идут последними).
      */
     protected final Set<Task> prioritizedSet = new TreeSet<>(
             Comparator.comparing((Task t) -> {
@@ -39,7 +39,6 @@ public class InMemoryTaskManager implements TaskManager {
             task.setId(idCounter++);
         } else {
             if (tasks.containsKey(task.getId())) {
-                // обновление: убрать из приоритетного множества старую версию
                 Task old = tasks.get(task.getId());
                 prioritizedSet.remove(old);
             }
@@ -95,13 +94,10 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setId(idCounter++);
         } else {
             if (epics.containsKey(epic.getId())) {
-                // при обновлении переносим привязанные субтаски в новый объект
                 Epic old = epics.get(epic.getId());
                 for (Subtask s : old.getSubtaskList()) {
                     epic.addSubtask(s);
                 }
-                // старые Subtask следует убрать из приоритетов,
-                // так как мы в будущем снова добавим их уже из нового эпика
                 for (Subtask s : old.getSubtaskList()) {
                     prioritizedSet.remove(s);
                 }
@@ -133,7 +129,6 @@ public class InMemoryTaskManager implements TaskManager {
             throw new IllegalArgumentException("Epic не найден");
         }
         Epic old = epics.get(epic.getId());
-        // Нужно сохранить список подзадач, привязанный к старому объекту
         epic.clearSubtasks();
         for (Subtask s : old.getSubtaskList()) {
             epic.addSubtask(s);
@@ -147,7 +142,6 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpic(int id) {
         Epic removed = epics.remove(id);
         if (removed != null) {
-            // при удалении эпика — удалить все его подзадачи из maps и приоритетов
             for (Subtask s : removed.getSubtaskList()) {
                 subtasks.remove(s.getId());
                 prioritizedSet.remove(s);
