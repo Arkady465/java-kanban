@@ -4,13 +4,8 @@ import model.Task;
 
 import java.util.List;
 
-/**
- * Интерфейс для менеджера истории.
- */
 public interface HistoryManager {
     void add(Task task);
-
     void remove(int id);
-
     List<Task> getHistory();
 }
