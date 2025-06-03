@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Эпик. Хранит список его подзадач.
+ * Эпик. Внутри хранит список его подзадач.
  * При пересчёте статуса и временных границ учитывает все подзадачи.
  */
 public class Epic extends Task {
@@ -66,9 +66,9 @@ public class Epic extends Task {
     public String toString() {
         return "Epic{" +
                 "id=" + getId() +
-                ", name='" + getName() + '\\'' +
-        ", description='" + getDescription() + '\\'' +
-        ", status=" + getStatus() +
+                ", name='" + getName() + "'" +
+                ", description='" + getDescription() + "'" +
+                ", status=" + getStatus() +
                 ", duration=" + getDuration() +
                 ", startTime=" + getStartTime() +
                 ", subtaskList=" + subtaskList +
