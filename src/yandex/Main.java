@@ -19,15 +19,11 @@ public class Main {
         manager.addSubtask(sub1);
 
         System.out.println("Сохранённые задачи:");
-        for (Task task : manager.getAllTasks()) {
-            System.out.println(task);
-        }
+        for (Task task : manager.getAllTasks()) System.out.println(task);
 
         // Загружаем менеджер из файла
         FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
         System.out.println("\nЗагруженные задачи из файла:");
-        for (Task task : loadedManager.getAllTasks()) {
-            System.out.println(task);
-        }
+        for (Task task : loadedManager.getAllTasks()) System.out.println(task);
     }
 }

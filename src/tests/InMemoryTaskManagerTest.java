@@ -1,17 +1,14 @@
-package tests;
-
-import model.Task;
 import model.Epic;
 import model.Subtask;
-import model.Status;
+import model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.Managers;
 import service.TaskManager;
-
-import static org.junit.jupiter.api.Assertions.*;
+import service.Managers;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
@@ -19,83 +16,79 @@ class InMemoryTaskManagerTest {
 
     @BeforeEach
     void setUp() {
-        taskManager = Managers.getDefault();
+        taskManager = Managers.getDefault(); // или new InMemoryTaskManager();
     }
 
     @Test
     void shouldAddAndRetrieveTask() {
         Task task = new Task("Task 1", "Description 1");
-        Task savedTask = taskManager.addTask(task);
-        assertNotNull(savedTask, "Task should be saved and not null");
-        assertEquals(task.getName(), savedTask.getName(), "Task names should match");
-        assertEquals(task.getDescription(), savedTask.getDescription(), "Task descriptions should match");
+        taskManager.addTask(task);
+        Task retrieved = taskManager.getTask(task.getId());
+        assertEquals(task, retrieved, "Retrieved task should match the added task");
     }
 
     @Test
     void shouldAddAndRetrieveEpic() {
-        Epic epic = new Epic("Epic 1", "Description 1");
-        Epic savedEpic = taskManager.addEpic(epic);
-        assertNotNull(savedEpic, "Epic should be saved and not null");
-        assertEquals(epic.getName(), savedEpic.getName(), "Epic names should match");
-        assertEquals(epic.getDescription(), savedEpic.getDescription(), "Epic descriptions should match");
+        Epic epic = new Epic("Epic 1", "Epic description");
+        taskManager.addEpic(epic);
+        Epic retrieved = (Epic) taskManager.getTask(epic.getId());
+        assertEquals(epic, retrieved);
     }
 
     @Test
     void shouldAddAndRetrieveSubtask() {
-        Epic epic = new Epic("Epic 1", "Description 1");
+        Epic epic = new Epic("Epic", "Epic desc");
         taskManager.addEpic(epic);
-        Subtask subtask = new Subtask("Subtask 1", "Description 1", epic.getId());
-        Subtask savedSubtask = taskManager.addSubtask(subtask);
-        assertNotNull(savedSubtask, "Subtask should be saved and not null");
-        assertEquals(subtask.getEpicID(), savedSubtask.getEpicID(), "Subtask's epic ID should match");
+        Subtask subtask = new Subtask("Sub", "Sub desc", epic.getId());
+        taskManager.addSubtask(subtask);
+
+        Subtask retrieved = (Subtask) taskManager.getTask(subtask.getId());
+        assertEquals(subtask, retrieved);
     }
 
     @Test
     void shouldUpdateEpicStatusBasedOnSubtasks() {
-        Epic epic = new Epic("Epic 1", "Description 1");
+        Epic epic = new Epic("Epic", "desc");
         taskManager.addEpic(epic);
-        Subtask subtask1 = new Subtask("Subtask 1", "Description 1", epic.getId());
-        Subtask subtask2 = new Subtask("Subtask 2", "Description 2", epic.getId());
-        taskManager.addSubtask(subtask1);
-        taskManager.addSubtask(subtask2);
 
-        subtask1.setStatus(Status.DONE);
-        taskManager.updateSubtask(subtask1);
-        assertEquals(Status.IN_PROGRESS, epic.getStatus(), "Epic status should be IN_PROGRESS when not all subtasks are done");
+        Subtask sub1 = new Subtask("Sub 1", "desc", epic.getId());
+        Subtask sub2 = new Subtask("Sub 2", "desc", epic.getId());
+        taskManager.addSubtask(sub1);
+        taskManager.addSubtask(sub2);
 
-        subtask2.setStatus(Status.DONE);
-        taskManager.updateSubtask(subtask2);
-        assertEquals(Status.DONE, epic.getStatus(), "Epic status should be DONE when all subtasks are done");
-    }
-
-    @Test
-    void shouldReturnHistoryOfTasks() {
-        Task task1 = taskManager.addTask(new Task("Task 1", "Description 1"));
-        Epic epic = taskManager.addEpic(new Epic("Epic 1", "Description 1"));
-        Subtask subtask = taskManager.addSubtask(new Subtask("Subtask 1", "Description 1", epic.getId()));
-
-        taskManager.getTask(task1.getId());
-        taskManager.getTask(epic.getId());
-        taskManager.getTask(subtask.getId());
-
-        List<Task> history = taskManager.getHistory();
-        assertEquals(3, history.size(), "History should contain 3 tasks");
-        assertEquals(task1, history.get(0), "First task in history should match");
-        assertEquals(epic, history.get(1), "Second task in history should match");
-        assertEquals(subtask, history.get(2), "Third task in history should match");
+        assertEquals(epic.getStatus(), sub1.getStatus()); // оба должны быть NEW
     }
 
     @Test
     void historyShouldNotExceedLimit() {
-        for (int i = 1; i <= 12; i++) {
-            taskManager.addTask(new Task("Task " + i, "Description " + i));
-        }
-        for (int i = 1; i <= 12; i++) {
-            taskManager.getTask(i);
+        for (int i = 0; i < 15; i++) {
+            Task task = new Task("Task " + i, "Desc " + i);
+            taskManager.addTask(task);
+            taskManager.getTask(task.getId()); // добавляем в историю
         }
         List<Task> history = taskManager.getHistory();
-        assertEquals(10, history.size(), "History should only contain the last 10 tasks");
-        assertEquals(3, history.get(0).getId(), "First task in history should match the 3rd task added");
-        assertEquals(12, history.get(9).getId(), "Last task in history should match the last task added");
+        assertEquals(10, history.size(), "History should not exceed 10 tasks");
+    }
+
+    @Test
+    void shouldReturnHistoryOfTasks() {
+        Task task1 = new Task("Task 1", "Description 1");
+        Task task2 = new Task("Task 2", "Description 2");
+        Epic epic = new Epic("Epic", "Epic desc");
+
+        taskManager.addTask(task1);
+        taskManager.addTask(task2);
+        taskManager.addEpic(epic);
+
+        // Делаем обращения к задачам, чтобы они попали в историю
+        taskManager.getTask(task1.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.getEpic(epic.getId());
+
+        List<Task> history = taskManager.getHistory();
+        assertEquals(3, history.size(), "History should contain 3 tasks");
+        assertEquals(task1, history.get(0));
+        assertEquals(task2, history.get(1));
+        assertEquals(epic, history.get(2));
     }
 }

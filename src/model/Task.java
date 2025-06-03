@@ -107,4 +107,8 @@ public class Task {
         String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
         return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur;
     }
+
+    public boolean isEmpty() {
+        return false;
+    }
 }

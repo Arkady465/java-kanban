@@ -27,9 +27,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
-            for (Task task : getAllTasks()) {
-                writer.write(task.toString() + "\n");
-            }
+            for (Task task : getAllTasks()) writer.write(task.toString() + "\n");
         } catch (IOException e) {
             throw new ManagerSaveException("Error saving tasks to file", e);
         }

@@ -67,12 +67,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getAllTasks() {
+    public Task getAllTasks() {
         List<Task> all = new ArrayList<>();
         all.addAll(tasks.values());
         all.addAll(epics.values());
         all.addAll(subtasks.values());
-        return all;
+        return (Task) all;
     }
 
     @Override
