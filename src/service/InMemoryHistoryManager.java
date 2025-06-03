@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Упрощённая реализация HistoryManager:
  * Хранит до последних 10 уникальных Task (по id).
- * Если добавляем тот же task повторно, удаляем старый и добавляем новый в конец.
+ * Если добавляем тот же task повторно, удаляем старый и добавляем заново в конец.
  */
 public class InMemoryHistoryManager implements HistoryManager {
     private static final int MAX_HISTORY = 10;
@@ -18,6 +18,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (task == null) {
             return;
         }
+        // Если в списке уже есть эта задача (по id), удаляем старый вариант
         history.removeIf(t -> t.getId() == task.getId());
         history.addLast(task);
         if (history.size() > MAX_HISTORY) {

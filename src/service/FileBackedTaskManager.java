@@ -27,6 +27,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
+    /**
+     * Сохраняет текущее состояние (tasks, epics, subtasks, history) в CSV-файл.
+     */
     public void save() {
         try (Writer writer = new FileWriter(file)) {
             writer.write("id,type,name,status,description,duration,startTime,epic\n");
@@ -51,11 +54,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
+    /**
+     * Загружает задачи из CSV-файла и возвращает новый FileBackedTaskManager.
+     */
     public static FileBackedTaskManager loadFromFile(File file) {
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        Map<Integer, Task> idToTask = new HashMap<>();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line = reader.readLine(); // строчка с заголовком
-            Map<Integer, Task> idToTask = new HashMap<>();
+            String line = reader.readLine(); // заголовок CSV
             while ((line = reader.readLine()) != null) {
                 if (line.isEmpty()) {
                     break;
@@ -74,12 +81,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     manager.idCounter = task.getId() + 1;
                 }
             }
-            // Связать подзадачи с эпиками
+            // Привязать подзадачи к эпикам
             for (Subtask sub : manager.subtasks.values()) {
                 Epic epic = manager.epics.get(sub.getEpicID());
                 epic.addSubtask(sub);
             }
-            // Считать историю
+            // Считать историю (одна строка с ID через запятую)
             if ((line = reader.readLine()) != null) {
                 List<Integer> historyIds = historyFromString(line);
                 for (int id : historyIds) {
@@ -125,7 +132,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return sb.toString();
     }
 
-    private Task fromString(String value) {
+    private static Task fromString(String value) {
         // Парсим CSV: id,type,name,status,description,duration,startTime,epic
         String[] parts = value.split(",");
         int id = Integer.parseInt(parts[0]);
@@ -135,7 +142,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String description = unescapeCommas(parts[4]);
         Long durationMinutes = parts[5].isEmpty() ? null : Long.parseLong(parts[5]);
         Duration duration = durationMinutes != null ? Duration.ofMinutes(durationMinutes) : null;
-        LocalDateTime startTime = parts[6].isEmpty() ? null : LocalDateTime.parse(parts[6], formatter);
+        LocalDateTime startTime = parts[6].isEmpty()
+                ? null
+                : LocalDateTime.parse(parts[6], DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         if (type == TaskType.TASK) {
             return new Task(id, name, description, status, duration, startTime);
@@ -153,7 +162,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             sb.append(t.getId()).append(",");
         }
         if (sb.length() > 0) {
-            sb.setLength(sb.length() - 1); // убрать последнюю запятую
+            sb.setLength(sb.length() - 1);
         }
         return sb.toString();
     }
@@ -194,7 +203,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return text == null ? "" : text.replace(",", "&#44;");
     }
 
-    private String unescapeCommas(String text) {
+    private static String unescapeCommas(String text) {
         return text == null ? "" : text.replace("&#44;", ",");
     }
 }
