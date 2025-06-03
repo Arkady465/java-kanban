@@ -1,8 +1,9 @@
 package service;
 
 /**
- * Фабрика менеджеров. Тесты могут использовать:
- *  - getDefault(), getDefaultHistory(), getDefaultTaskManager().
+ * Фабрика для удобного создания TaskManager.
+ * Тесты ожидают getDefault(), getDefaultHistory() и getDefaultTaskManager().
+ * Добавиль метод getDefaultFileBacked(path), если нужен FileBackedTaskManager.
  */
 public class Managers {
 

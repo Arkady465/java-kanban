@@ -1,11 +1,10 @@
 package model;
 
 /**
- * Тип задачи: TASK, SUBTASK или EPIC.
- * Нужен для того, чтобы InMemoryTaskManager мог различать “чьи” задачи.
+ * Типы сущностей: таск, эпик, сабтаск.
  */
 public enum TaskType {
     TASK,
-    SUBTASK,
-    EPIC
+    EPIC,
+    SUBTASK
 }

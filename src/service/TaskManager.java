@@ -7,28 +7,27 @@ import model.Task;
 import java.util.List;
 
 /**
- * Интерфейс менеджера задач. Тесты ожидают методы:
- *  - Task addTask(Task task);
- *  - Task getTask(int id);
- *  - void deleteTask(int id);
- *  - List<Task> getAllTasks();
+ * Интерфейс менеджера задач. Тесты ожидают:
+ *   Task addTask(Task);
+ *   Task getTask(int);
+ *   void updateTask(Task);
+ *   void deleteTask(int);
+ *   List<Task> getAllTasks();
  *
- *  - Epic addEpic(Epic epic);
- *  - Epic getEpic(int id);
- *  - void deleteEpic(int id);
- *  - List<Epic> getAllEpics();
+ *   Epic addEpic(Epic);
+ *   Epic getEpic(int);
+ *   void updateEpic(Epic);
+ *   void deleteEpic(int);
+ *   List<Epic> getAllEpics();
  *
- *  - Subtask addSubtask(Subtask subtask);
- *  - Subtask getSubtask(int id);
- *  - void deleteSubtask(int id);
- *  - List<Subtask> getAllSubtasks();
+ *   Subtask addSubtask(Subtask);
+ *   Subtask getSubtask(int);
+ *   void updateSubtask(Subtask);
+ *   void deleteSubtask(int);
+ *   List<Subtask> getAllSubtasks();
  *
- *  - void updateTask(Task task);
- *  - void updateEpic(Epic epic);
- *  - void updateSubtask(Subtask subtask);
- *
- *  - List<Task> getHistory();
- *  - List<Task> getPrioritizedTasks();
+ *   List<Task> getHistory();
+ *   List<Task> getPrioritizedTasks();
  */
 public interface TaskManager {
 
@@ -65,7 +64,7 @@ public interface TaskManager {
 
     List<Subtask> getAllSubtasks();
 
-    // ===== History и приоритетность =====
+    // ===== History и Приоритет =====
     List<Task> getHistory();
 
     List<Task> getPrioritizedTasks();

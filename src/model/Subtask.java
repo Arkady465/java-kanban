@@ -1,58 +1,41 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Класс “подзадачи” (Subtask). Наследует Task.
- * В тестах есть обход: new Subtask("Subtask 1", "Description 1", epic.getId());
- * Поэтому нужен ровно такой конструктор.
- *
- * Поля:
- *  - int epicID      – id того Epic, к которому относится подзадача
- *
- * Методы:
- *  - getEpicID()  (именно с таким регистром, т.к. в тесте assertEquals(subtask.getEpicID(), …))
- *  - getType() -> TaskType.SUBTASK
+ * Подзадача, привязанная к определённому эпику.
  */
 public class Subtask extends Task {
-    private int epicID; // именно так тесты ожидают название поля/геттера
+    private final int epicID;
 
-    public Subtask() {
-        // Пустой конструктор
-    }
-
-    /**
-     * Конструктор, используемый в тестах:
-     * new Subtask("Subtask 1", "Description 1", epic.getId());
-     * По умолчанию статус = NEW, время и длительность = null.
-     */
-    public Subtask(String name, String description, int epicID) {
+    public Subtask(String name,
+                   String description,
+                   int epicID) {
         super(name, description);
         this.epicID = epicID;
     }
 
-    /**
-     * Если нужно задать id явно (реже используется), можно добавить конструктор:
-     * public Subtask(int id, String name, String description, int epicID) { … }
-     * Но тесты это не используют, поэтому необязательно.
-     */
-
-    // ===== Геттер и сеттер epicID =====
+    public Subtask(int id,
+                   String name,
+                   String description,
+                   Status status,
+                   Duration duration,
+                   LocalDateTime startTime,
+                   int epicID) {
+        super(id, name, description, status, duration, startTime);
+        this.epicID = epicID;
+    }
 
     public int getEpicID() {
         return epicID;
-    }
-
-    public void setEpicID(int epicID) {
-        this.epicID = epicID;
     }
 
     @Override
     public TaskType getType() {
         return TaskType.SUBTASK;
     }
-
-    // ===== equals(), hashCode(), toString() =====
 
     @Override
     public boolean equals(Object o) {

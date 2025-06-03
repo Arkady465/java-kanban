@@ -1,31 +1,35 @@
-package model;
+package todo.model;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
- * Обычная задача.
+ * Класс базовой задачи.
  */
 public class Task {
-    private int id;
-    private String name;
-    private String description;
-    private Status status = Status.NEW;
-    private Duration duration;
-    private LocalDateTime startTime;
+    private int id;                     // уникальный идентификатор
+    private String name;                // название
+    private String description;         // описание
+    private Status status;              // статус: NEW, IN_PROGRESS, DONE
+    private Duration duration;          // длительность (опционально)
+    private LocalDateTime startTime;    // начало (опционально)
 
-    public Task(String name, String description) {
-        this.name = name;
-        this.description = description;
+    public Task() {
+        // пустой конструктор нужен для десериализации Gson
     }
 
-    public Task(int id,
-                String name,
-                String description,
-                Status status,
-                Duration duration,
-                LocalDateTime startTime) {
+    public Task(String name, String description, Status status,
+                Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
+    public Task(int id, String name, String description, Status status,
+                Duration duration, LocalDateTime startTime) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -33,6 +37,8 @@ public class Task {
         this.duration = duration;
         this.startTime = startTime;
     }
+
+    // ===== Геттеры и сеттеры =====
 
     public int getId() {
         return id;
@@ -82,19 +88,7 @@ public class Task {
         this.startTime = startTime;
     }
 
-    /**
-     * Конвенция: endTime = startTime + duration, если оба != null.
-     */
-    public LocalDateTime getEndTime() {
-        if (startTime == null || duration == null) {
-            return null;
-        }
-        return startTime.plus(duration);
-    }
-
-    public TaskType getType() {
-        return TaskType.TASK;
-    }
+    // ===== equals(), hashCode(), toString() =====
 
     @Override
     public boolean equals(Object o) {
@@ -102,12 +96,12 @@ public class Task {
         if (o == null || getClass() != o.getClass()) return false;
 
         Task task = (Task) o;
-        return id == task.id
-                && Objects.equals(name, task.name)
-                && Objects.equals(description, task.description)
-                && status == task.status
-                && Objects.equals(duration, task.duration)
-                && Objects.equals(startTime, task.startTime);
+        return id == task.id &&
+                Objects.equals(name, task.name) &&
+                Objects.equals(description, task.description) &&
+                status == task.status &&
+                Objects.equals(duration, task.duration) &&
+                Objects.equals(startTime, task.startTime);
     }
 
     @Override
