@@ -1,14 +1,13 @@
 package ru.yandex.todo.manager;
 
-import ru.yandex.todo.model.Task;
+import model.Task;
 
 import java.util.List;
 
 /**
- * Интерфейс для истории просмотров.
+ * Интерфейс для менеджера истории просмотров.
  */
 public interface HistoryManager {
-
     void add(Task task);
 
     List<Task> getHistory();

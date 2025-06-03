@@ -1,8 +1,8 @@
 package ru.yandex.todo.manager;
 
-import ru.yandex.todo.model.Epic;
-import ru.yandex.todo.model.Subtask;
-import ru.yandex.todo.model.Task;
+import model.Epic;
+import model.Subtask;
+import model.Task;
 
 import java.util.List;
 import java.util.Set;
@@ -14,7 +14,7 @@ public interface TaskManager {
 
     // ===== Методы для Task =====
 
-    List<Task> getTasks();
+    List<Task> getAllTasks();
 
     Task getTaskById(int id);
 
@@ -27,7 +27,7 @@ public interface TaskManager {
 
     // ===== Методы для Subtask =====
 
-    List<Subtask> getSubtasks();
+    List<Subtask> getAllSubtasks();
 
     Subtask getSubtaskById(int id);
 
@@ -40,7 +40,7 @@ public interface TaskManager {
 
     // ===== Методы для Epic =====
 
-    List<Epic> getEpics();
+    List<Epic> getAllEpics();
 
     Epic getEpicById(int id);
 
@@ -53,7 +53,7 @@ public interface TaskManager {
     List<Subtask> getEpicSubtasks(int epicId);
 
 
-    // ===== History & Prioritized =====
+    // ===== История просмотров и приоритетность =====
 
     List<Task> getHistory();
 

@@ -1,71 +1,80 @@
 package model;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Эпик (Epic) — задача, содержащая список подзадач.
+ * Статус и время рассчитываются на основе подзадач в менеджере.
+ */
 public class Epic extends Task {
-    private final ArrayList<Subtask> subtasks = new ArrayList<>();
-    private LocalDateTime endTime; // вычисляемое поле
+    // Список id подзадач
+    private List<Integer> subtaskIds = new ArrayList<>();
+
+    public Epic() {
+        // Для десериализации
+    }
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, Status.NEW, null, null);
     }
 
-    public Epic(int id, String name, Status status, String description) {
-        super(id, name, status, description);
+    public Epic(int id,
+                String name,
+                String description,
+                Status status,
+                Duration duration,
+                LocalDateTime startTime,
+                List<Integer> subtaskIds) {
+        super(id, name, description, status, duration, startTime);
+        this.subtaskIds = new ArrayList<>(subtaskIds);
     }
 
-    @Override
-    public TaskType getType() {
-        return TaskType.EPIC;
+    public List<Integer> getSubtaskIds() {
+        return new ArrayList<>(subtaskIds);
     }
 
-    public void addSubtask(Subtask subtask) {
-        subtasks.add(subtask);
+    public void setSubtaskIds(List<Integer> subtaskIds) {
+        this.subtaskIds = new ArrayList<>(subtaskIds);
     }
 
-    public void removeSubtask(int subtaskId) {
-        subtasks.removeIf(subtask -> subtask.getId() == subtaskId);
+    public void addSubtaskId(int subtaskId) {
+        if (!subtaskIds.contains(subtaskId)) {
+            subtaskIds.add(subtaskId);
+        }
     }
 
-    public List<Subtask> getSubtaskList() {
-        return new ArrayList<>(subtasks);
-    }
-
-    public void clearSubtasks() {
-        subtasks.clear();
-    }
-
-    public LocalDateTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    // Сериализация: id, тип, имя, статус, описание, startTime, duration, endTime
-    @Override
-    public String toString() {
-        String start = (startTime != null) ? startTime.toString() : "null";
-        String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
-        String end = (endTime != null) ? endTime.toString() : "null";
-        return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur + "," + end;
+    public void removeSubtaskId(int subtaskId) {
+        subtaskIds.remove(Integer.valueOf(subtaskId));
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof Epic)) return false;
+        if (!super.equals(o)) return false;
         Epic epic = (Epic) o;
-        return subtasks.equals(epic.subtasks);
+        return Objects.equals(subtaskIds, epic.subtaskIds);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), subtasks);
+        return Objects.hash(super.hashCode(), subtaskIds);
+    }
+
+    @Override
+    public String toString() {
+        return "Epic{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", description='" + getDescription() + '\'' +
+                ", status=" + getStatus() +
+                ", duration=" + getDuration() +
+                ", startTime=" + getStartTime() +
+                ", subtaskIds=" + subtaskIds +
+                '}';
     }
 }

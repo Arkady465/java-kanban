@@ -1,20 +1,20 @@
 package ru.yandex.todo.manager;
 
-import ru.yandex.todo.model.Task;
+import model.Task;
 
 import java.util.*;
 
 /**
- * Реализация истории через связный список и HashMap для O(1)-доступа и удаления.
- * Позволяет хранить неограниченную историю без дубликатов:
- *   если Task уже есть в истории, сначала убираем старый узел, затем добавляем в конец.
+ * Реализация истории просмотров через двусвязный список и HashMap,
+ * обеспечивающая O(1) добавление, удаление, получение.
+ * Из истории удаляется старая запись, если та же задача просматривается вновь.
  */
 public class InMemoryHistoryManager implements HistoryManager {
     private final Map<Integer, Node> nodeById = new HashMap<>();
     private Node head;
     private Node tail;
 
-    // Внутренний класс узла двусвязного списка
+    // Внутренний узел двусвязного списка
     private static class Node {
         Task task;
         Node prev;
@@ -25,25 +25,16 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    /**
-     * Пустая строка выше позволяет отделить определение внутреннего класса от конструктора
-     * (требование Checkstyle: 'CTOR_DEF' should be separated from previous line).
-     */
-
     public InMemoryHistoryManager() {
-        // Конструктор оставляем пустым, т.к. все поля уже инициализируются выше
+        // Конструктор без параметров
     }
 
     @Override
     public void add(Task task) {
-        if (task == null) {
-            return;
-        }
-        // Если уже есть в истории – удаляем старый узел
+        if (task == null) return;
         if (nodeById.containsKey(task.getId())) {
             removeNode(nodeById.get(task.getId()));
         }
-        // Добавляем в конец списка
         linkLast(task);
     }
 
@@ -67,8 +58,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    // ===== Вспомогательные методы для двусвязного списка =====
-
+    // Добавляет новый узел в конец списка
     private void linkLast(Task task) {
         Node node = new Node(task);
         nodeById.put(task.getId(), node);
@@ -82,6 +72,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
+    // Удаляет узел из двусвязного списка
     private void removeNode(Node node) {
         Node prevNode = node.prev;
         Node nextNode = node.next;

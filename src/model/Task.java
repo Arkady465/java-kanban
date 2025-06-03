@@ -4,28 +4,46 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Класс базовой задачи.
+ */
 public class Task {
-    protected String name;
-    protected String description;
-    protected int id;
-    protected Status status;
-    protected LocalDateTime startTime;
-    protected Duration duration;
+    private int id;
+    private String name;
+    private String description;
+    private Status status;
+    private Duration duration;
+    private LocalDateTime startTime;
 
-    public Task(String name, String description) {
+    public Task() {
+        // Для десериализации, если потребуется
+    }
+
+    public Task(String name, String description, Status status, Duration duration, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
-        this.status = Status.NEW;
-    }
-
-    public Task(int id, String name, Status status, String description) {
-        this(name, description);
-        this.id = id;
         this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
-    public TaskType getType() {
-        return TaskType.TASK;
+    public Task(int id, String name, String description, Status status, Duration duration, LocalDateTime startTime) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
+    }
+
+    // ===== Геттеры и сеттеры =====
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -44,28 +62,12 @@ public class Task {
         this.description = description;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public Status getStatus() {
         return status;
     }
 
     public void setStatus(Status status) {
         this.status = status;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
     }
 
     public Duration getDuration() {
@@ -76,39 +78,44 @@ public class Task {
         this.duration = duration;
     }
 
-    public LocalDateTime getEndTime() {
-        if (startTime != null && duration != null) {
-            return startTime.plus(duration);
-        }
-        return null;
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    // ===== equals(), hashCode(), toString() =====
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Task)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
         Task task = (Task) o;
-        return id == task.id;
+        return id == task.id &&
+                Objects.equals(name, task.name) &&
+                Objects.equals(description, task.description) &&
+                status == task.status &&
+                Objects.equals(duration, task.duration) &&
+                Objects.equals(startTime, task.startTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, name, description, status, duration, startTime);
     }
 
-    // Сериализация: id, тип, имя, статус, описание, startTime, duration (в минутах)
     @Override
     public String toString() {
-        String start = (startTime != null) ? startTime.toString() : "null";
-        String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
-        return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur;
-    }
-
-    public boolean isEmpty() {
-        return false;
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
+                '}';
     }
 }

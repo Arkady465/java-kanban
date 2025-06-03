@@ -1,15 +1,37 @@
 package model;
 
-public class Subtask extends Task {
-    private final int epicId;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
-    public Subtask(String name, String description, int epicId) {
-        super(name, description);
+/**
+ * Класс подзадачи, наследует Task, содержит поле epicId.
+ */
+public class Subtask extends Task {
+    private int epicId;
+
+    public Subtask() {
+        // Для десериализации
+    }
+
+    public Subtask(String name,
+                   String description,
+                   Status status,
+                   Duration duration,
+                   LocalDateTime startTime,
+                   int epicId) {
+        super(name, description, status, duration, startTime);
         this.epicId = epicId;
     }
 
-    public Subtask(int id, String name, Status status, String description, int epicId) {
-        super(id, name, status, description);
+    public Subtask(int id,
+                   String name,
+                   String description,
+                   Status status,
+                   Duration duration,
+                   LocalDateTime startTime,
+                   int epicId) {
+        super(id, name, description, status, duration, startTime);
         this.epicId = epicId;
     }
 
@@ -17,21 +39,34 @@ public class Subtask extends Task {
         return epicId;
     }
 
-    // Альтернативный метод для получения id эпика
-    public int getEpicID() {
-        return epicId;
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
     }
 
     @Override
-    public TaskType getType() {
-        return TaskType.SUBTASK;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Subtask)) return false;
+        if (!super.equals(o)) return false;
+        Subtask subtask = (Subtask) o;
+        return epicId == subtask.epicId;
     }
 
-    // Сериализация: id, тип, имя, статус, описание, startTime, duration, epicId
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), epicId);
+    }
+
     @Override
     public String toString() {
-        String start = (startTime != null) ? startTime.toString() : "null";
-        String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
-        return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur + "," + epicId;
+        return "Subtask{" +
+                "id=" + getId() +
+                ", name='" + getName() + '\'' +
+                ", description='" + getDescription() + '\'' +
+                ", status=" + getStatus() +
+                ", duration=" + getDuration() +
+                ", startTime=" + getStartTime() +
+                ", epicId=" + epicId +
+                '}';
     }
 }
