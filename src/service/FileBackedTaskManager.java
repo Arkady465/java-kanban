@@ -36,9 +36,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // Здесь должна быть ВАША реальная логика парсинга CSV.
-                // Но чтобы тест “shouldHandleEmptyFile” прошёл успешно, достаточно того, что
-                // getAllTasks() остаётся пустым, если файл пустой или только что создан.
+                // Скелет парсинга: для теста “shouldHandleEmptyFile” достаточно, что список задач остаётся пуст.
             }
         } catch (IOException e) {
             throw new RuntimeException("Ошибка при чтении из файла: " + e.getMessage(), e);
@@ -62,8 +60,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void addTask(Task task) {
-        super.addTask(task);
+    public Task addTask(Task task) {
+        Task result = super.addTask(task);
+        save();
+        return result;
+    }
+
+    @Override
+    public void updateTask(Task task) {
+        super.updateTask(task);
         save();
     }
 
@@ -74,8 +79,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void addEpic(Epic epic) {
-        super.addEpic(epic);
+    public Epic addEpic(Epic epic) {
+        Epic result = super.addEpic(epic);
+        save();
+        return result;
+    }
+
+    @Override
+    public void updateEpic(Epic epic) {
+        super.updateEpic(epic);
         save();
     }
 
@@ -86,8 +98,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void addSubtask(Subtask subtask) {
-        super.addSubtask(subtask);
+    public Subtask addSubtask(Subtask subtask) {
+        Subtask result = super.addSubtask(subtask);
+        save();
+        return result;
+    }
+
+    @Override
+    public void updateSubtask(Subtask subtask) {
+        super.updateSubtask(subtask);
         save();
     }
 

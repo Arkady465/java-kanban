@@ -8,48 +8,58 @@ import java.util.List;
 
 /**
  * Интерфейс менеджера задач. Тесты ожидают методы:
- *  - void addTask(Task task);
+ *  - Task addTask(Task task);
  *  - Task getTask(int id);
  *  - void deleteTask(int id);
  *  - List<Task> getAllTasks();
  *
- *  - void addEpic(Epic epic);
+ *  - Epic addEpic(Epic epic);
  *  - Epic getEpic(int id);
  *  - void deleteEpic(int id);
  *  - List<Epic> getAllEpics();
  *
- *  - void addSubtask(Subtask subtask);
+ *  - Subtask addSubtask(Subtask subtask);
  *  - Subtask getSubtask(int id);
  *  - void deleteSubtask(int id);
  *  - List<Subtask> getAllSubtasks();
  *
+ *  - void updateTask(Task task);
+ *  - void updateEpic(Epic epic);
+ *  - void updateSubtask(Subtask subtask);
+ *
  *  - List<Task> getHistory();
- *  - List<Task> getPrioritizedTasks();  (в TestExtended возвращают List + сравнивают индексы)
+ *  - List<Task> getPrioritizedTasks();
  */
 public interface TaskManager {
 
     // ===== Task =====
-    void addTask(Task task);
+    Task addTask(Task task);
 
     Task getTask(int id);
+
+    void updateTask(Task task);
 
     void deleteTask(int id);
 
     List<Task> getAllTasks();
 
     // ===== Epic =====
-    void addEpic(Epic epic);
+    Epic addEpic(Epic epic);
 
     Epic getEpic(int id);
+
+    void updateEpic(Epic epic);
 
     void deleteEpic(int id);
 
     List<Epic> getAllEpics();
 
     // ===== Subtask =====
-    void addSubtask(Subtask subtask);
+    Subtask addSubtask(Subtask subtask);
 
     Subtask getSubtask(int id);
+
+    void updateSubtask(Subtask subtask);
 
     void deleteSubtask(int id);
 

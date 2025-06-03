@@ -13,7 +13,7 @@ import java.util.*;
  *  - Генерирует id = 1,2,3… при добавлении с помощью idCounter++;
  *  - Поддерживает историю просмотров через InMemoryHistoryManager;
  *  - Проверяет пересечения по времени (startTime + duration) при добавлении/обновлении;
- *  - Хранит приоритет (List<Task>), упорядочивая по startTime (раньше – впереди).
+ *  - Хранит приоритет (TreeSet<Task>), упорядочивая по startTime (раньше – впереди).
  */
 public class InMemoryTaskManager implements TaskManager {
     private final Map<Integer, Task> tasks = new HashMap<>();
@@ -29,14 +29,17 @@ public class InMemoryTaskManager implements TaskManager {
     private int idCounter = 1;
 
     // ===== Task =====
+
     @Override
-    public void addTask(Task task) {
+    public Task addTask(Task task) {
         if (task == null) {
             throw new IllegalArgumentException("Task cannot be null");
         }
+        // Если id не установлен, выдаём новый:
         if (task.getId() == 0) {
             task.setId(idCounter++);
         } else {
+            // Если id уже есть и задача существует — удаляем старую из приоритета
             if (tasks.containsKey(task.getId())) {
                 prioritizedSet.remove(tasks.get(task.getId()));
             }
@@ -44,6 +47,7 @@ public class InMemoryTaskManager implements TaskManager {
         validateTaskTime(task);
         tasks.put(task.getId(), task);
         prioritizedSet.add(task);
+        return task;
     }
 
     @Override
@@ -53,6 +57,22 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(task);
         }
         return task;
+    }
+
+    @Override
+    public void updateTask(Task task) {
+        if (task == null) {
+            throw new IllegalArgumentException("Task cannot be null");
+        }
+        int id = task.getId();
+        if (!tasks.containsKey(id)) {
+            throw new IllegalArgumentException("Task with id=" + id + " not found");
+        }
+        // Удаляем старый из приоритета, вставляем новый:
+        prioritizedSet.remove(tasks.get(id));
+        validateTaskTime(task);
+        tasks.put(id, task);
+        prioritizedSet.add(task);
     }
 
     @Override
@@ -73,8 +93,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // ===== Epic =====
+
     @Override
-    public void addEpic(Epic epic) {
+    public Epic addEpic(Epic epic) {
         if (epic == null) {
             throw new IllegalArgumentException("Epic cannot be null");
         }
@@ -82,13 +103,16 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setId(idCounter++);
         } else {
             if (epics.containsKey(epic.getId())) {
+                // При обновлении эпика переносим старые подзадачи в новый объект
                 Epic old = epics.get(epic.getId());
                 for (Subtask s : old.getSubtaskList()) {
                     epic.addSubtask(s);
                 }
+                prioritizedSet.removeAll(old.getSubtaskList()); // удалим старые подзадачи из приоритета
             }
         }
         epics.put(epic.getId(), epic);
+        return epic;
     }
 
     @Override
@@ -101,9 +125,36 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public void updateEpic(Epic epic) {
+        if (epic == null) {
+            throw new IllegalArgumentException("Epic cannot be null");
+        }
+        int id = epic.getId();
+        if (!epics.containsKey(id)) {
+            throw new IllegalArgumentException("Epic with id=" + id + " not found");
+        }
+        // При обновлении эпика сохраняем связи с подзадачами из старого объекта:
+        Epic oldEpic = epics.get(id);
+        List<Subtask> oldSubtasks = oldEpic.getSubtaskList();
+        // Удаляем подзадачи из приоритета (обновим ссылки заново ниже):
+        for (Subtask s : oldSubtasks) {
+            prioritizedSet.remove(s);
+        }
+        for (Subtask s : oldSubtasks) {
+            epic.addSubtask(s);
+        }
+        epics.put(id, epic);
+        // Заново вставляем подзадачи в приоритет (они всё ещё лежат в subtasks):
+        for (Subtask s : oldSubtasks) {
+            prioritizedSet.add(s);
+        }
+    }
+
+    @Override
     public void deleteEpic(int id) {
         Epic removed = epics.remove(id);
         if (removed != null) {
+            // При удалении эпика — удаляем все его подзадачи
             for (Subtask s : removed.getSubtaskList()) {
                 subtasks.remove(s.getId());
                 prioritizedSet.remove(s);
@@ -123,8 +174,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // ===== Subtask =====
+
     @Override
-    public void addSubtask(Subtask subtask) {
+    public Subtask addSubtask(Subtask subtask) {
         if (subtask == null) {
             throw new IllegalArgumentException("Subtask cannot be null");
         }
@@ -144,6 +196,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.put(subtask.getId(), subtask);
         prioritizedSet.add(subtask);
         parentEpic.addSubtask(subtask);
+        return subtask;
     }
 
     @Override
@@ -153,6 +206,35 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(sub);
         }
         return sub;
+    }
+
+    @Override
+    public void updateSubtask(Subtask subtask) {
+        if (subtask == null) {
+            throw new IllegalArgumentException("Subtask cannot be null");
+        }
+        int id = subtask.getId();
+        if (!subtasks.containsKey(id)) {
+            throw new IllegalArgumentException("Subtask with id=" + id + " not found");
+        }
+        // Меняем принадлежность к эпикам, если нужно:
+        Subtask old = subtasks.get(id);
+        if (old.getEpicID() != subtask.getEpicID()) {
+            Epic oldEpic = epics.get(old.getEpicID());
+            if (oldEpic != null) {
+                oldEpic.removeSubtask(id);
+            }
+            Epic newEpic = epics.get(subtask.getEpicID());
+            if (newEpic == null) {
+                throw new IllegalArgumentException("Epic with id=" + subtask.getEpicID() + " not found");
+            }
+            newEpic.addSubtask(subtask);
+        }
+        // Обновляем в приоритете:
+        prioritizedSet.remove(old);
+        validateTaskTime(subtask);
+        subtasks.put(id, subtask);
+        prioritizedSet.add(subtask);
     }
 
     @Override
@@ -177,6 +259,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // ===== History & Prioritized =====
+
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
