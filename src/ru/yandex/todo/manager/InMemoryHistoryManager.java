@@ -19,9 +19,19 @@ public class InMemoryHistoryManager implements HistoryManager {
         Task task;
         Node prev;
         Node next;
+
         Node(Task task) {
             this.task = task;
         }
+    }
+
+    /**
+     * Пустая строка выше позволяет отделить определение внутреннего класса от конструктора
+     * (требование Checkstyle: 'CTOR_DEF' should be separated from previous line).
+     */
+
+    public InMemoryHistoryManager() {
+        // Конструктор оставляем пустым, т.к. все поля уже инициализируются выше
     }
 
     @Override
