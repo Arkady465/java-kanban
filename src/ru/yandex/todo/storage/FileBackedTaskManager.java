@@ -7,12 +7,10 @@ import ru.yandex.todo.model.Subtask;
 import ru.yandex.todo.model.Task;
 
 import java.io.*;
-import java.util.List;
 
 /**
  * Пример класса, который сохраняет задачи в CSV‐файл и восстанавливает их.
  * Он наследует InMemoryTaskManager и добавляет сохранение/загрузку.
- * Сигнатуры методов совпадают с InMemoryTaskManager, но внутри вызывается save() при изменениях.
  */
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
@@ -24,12 +22,16 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void loadFromFile() {
         // Логика чтения из CSV и восстановления задач, эпиков, подзадач, истории...
-        // Этот метод должен вызываться в конструкторе.
+        // Здесь нужно читать из файла `file` и заполнять внутренние структуры InMemoryTaskManager.
     }
 
     private void save() {
         // Логика записи в CSV (все задачи, эпики, подзадачи, и история).
-        // Вызывается каждый раз при create/update/delete.
+        // Должна открывать `file` на запись и последовательно сохранять:
+        // 1) Все задачи (Task)
+        // 2) Все эпики (Epic)
+        // 3) Все подзадачи (Subtask)
+        // 4) И, возможно, историю просмотров (если нужна)
     }
 
     @Override
