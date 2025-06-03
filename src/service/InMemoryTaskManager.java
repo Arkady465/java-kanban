@@ -20,8 +20,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     private final HistoryManager historyManager = new InMemoryHistoryManager();
 
-    // Для приоритетов (отсортированы по startTime; null иду́т последними)
-    private final Set<Task> prioritizedSet = new TreeSet<>(
+    // Для приоритетов (отсортированы по startTime; null идут последними)
+    protected final Set<Task> prioritizedSet = new TreeSet<>(
             Comparator.comparing((Task t) -> {
                 LocalDateTime st = t.getStartTime();
                 return st == null ? LocalDateTime.MAX : st;
@@ -36,7 +36,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (task.getId() == 0) {
             task.setId(idCounter++);
         } else {
-            // обновление существующей: если есть, удаляем из приоритетов старое
             if (tasks.containsKey(task.getId())) {
                 Task old = tasks.get(task.getId());
                 prioritizedSet.remove(old);
@@ -63,18 +62,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task updateTask(Task task) {
+    public void updateTask(Task task) {
         if (task == null || !tasks.containsKey(task.getId())) {
             throw new IllegalArgumentException("Task не найден");
         }
-        // удалить старую запись из приоритета
         Task old = tasks.get(task.getId());
         prioritizedSet.remove(old);
 
         validateTaskTime(task);
         tasks.put(task.getId(), task);
         prioritizedSet.add(task);
-        return task;
     }
 
     @Override
@@ -94,7 +91,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic.getId() == 0) {
             epic.setId(idCounter++);
         } else {
-            // при обновлении надо перенести дочерние Subtask в новый экземпляр
             if (epics.containsKey(epic.getId())) {
                 Epic old = epics.get(epic.getId());
                 for (Subtask s : old.getSubtaskList()) {
@@ -126,12 +122,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic updateEpic(Epic epic) {
+    public void updateEpic(Epic epic) {
         if (epic == null || !epics.containsKey(epic.getId())) {
             throw new IllegalArgumentException("Epic не найден");
         }
         Epic old = epics.get(epic.getId());
-        // при обновлении пересчитываем только поля, которые поменялись в самом epic, субзадачи остаются
         epic.getSubtaskList().clear();
         for (Subtask s : old.getSubtaskList()) {
             epic.addSubtask(s);
@@ -139,14 +134,12 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(epic.getId(), epic);
         recalcEpicStatus(epic.getId());
         recalcEpicTime(epic.getId());
-        return epic;
     }
 
     @Override
     public void deleteEpic(int id) {
         Epic removed = epics.remove(id);
         if (removed != null) {
-            // удалить все связанные Subtask из maps и из приоритетов
             for (Subtask s : removed.getSubtaskList()) {
                 subtasks.remove(s.getId());
                 prioritizedSet.remove(s);
@@ -198,7 +191,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask updateSubtask(Subtask subtask) {
+    public void updateSubtask(Subtask subtask) {
         if (subtask == null || !subtasks.containsKey(subtask.getId())) {
             throw new IllegalArgumentException("Subtask не найден");
         }
@@ -220,7 +213,6 @@ public class InMemoryTaskManager implements TaskManager {
         parentEpic.addSubtask(subtask);
         recalcEpicStatus(parentEpic.getId());
         recalcEpicTime(parentEpic.getId());
-        return subtask;
     }
 
     @Override
@@ -244,8 +236,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        return new TreeSet<>(prioritizedSet);
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedSet);
     }
 
     @Override
@@ -255,6 +247,27 @@ public class InMemoryTaskManager implements TaskManager {
             throw new IllegalArgumentException("Epic с id=" + epicId + " не найден");
         }
         return new ArrayList<>(epic.getSubtaskList());
+    }
+
+    @Override
+    public boolean hasIntersection(Task task) {
+        if (task.getStartTime() == null || task.getDuration() == null) {
+            return false;
+        }
+        LocalDateTime newStart = task.getStartTime();
+        LocalDateTime newEnd = task.getEndTime();
+        for (Task t : prioritizedSet) {
+            if (t.getStartTime() == null || t.getDuration() == null) {
+                continue;
+            }
+            LocalDateTime existStart = t.getStartTime();
+            LocalDateTime existEnd = t.getEndTime();
+            boolean overlap = newStart.isBefore(existEnd) && existStart.isBefore(newEnd);
+            if (overlap) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* === ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ДЛЯ EPIC === */
