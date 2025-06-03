@@ -72,6 +72,8 @@ public interface TaskManager {
 
     List<Task> getPrioritizedTasks();
 
+    List<Subtask> getEpicSubtasks(int epicId);
+
     // ===== Extra method for intersection test =====
     boolean hasIntersection(Task task);
 }
