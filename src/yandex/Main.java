@@ -1,29 +1,31 @@
 package yandex;
 
-import model.*;
+import manager.TaskManager;
 import service.FileBackedTaskManager;
-
-import java.io.File;
+import model.Task;
 
 public class Main {
     public static void main(String[] args) {
-        File file = new File("data.csv");
-        FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        // Создаём менеджер, привязанный к файлу tasks.csv
+        TaskManager manager = new FileBackedTaskManager("tasks.csv");
 
-        Task task1 = new Task("Покупки", "Купить хлеб и молоко");
-        Epic epic = new Epic("Ремонт", "Сделать ремонт в комнате");
-        Subtask sub1 = new Subtask("Поклеить обои", "Выбрать светлые", epic.getId());
+        // Создадим несколько задач и добавим их
+        manager.createTask(new Task("Task 1", "Description 1"));
+        manager.createTask(new Task("Task 2", "Description 2"));
 
-        manager.addTask(task1);
-        manager.addEpic(epic);
-        manager.addSubtask(sub1);
+        // Вместо getAllTasks() – используем getTasks(), который возвращает List<Task>
+        System.out.println("Задачи в менеджере:");
+        for (Task task : manager.getTasks()) {
+            System.out.println(task);
+        }
 
-        System.out.println("Сохранённые задачи:");
-        for (Task task : manager.getAllTasks()) System.out.println(task);
+        // Допустим, у нас есть метод loadFromFile(), который вернул
+        // другой экземпляр менеджера (reloadManager)
+        TaskManager loadedManager = new FileBackedTaskManager("tasks.csv");
 
-        // Загружаем менеджер из файла
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
-        System.out.println("\nЗагруженные задачи из файла:");
-        for (Task task : loadedManager.getAllTasks()) System.out.println(task);
+        System.out.println("Задачи после загрузки из файла:");
+        for (Task task : loadedManager.getTasks()) {
+            System.out.println(task);
+        }
     }
 }
