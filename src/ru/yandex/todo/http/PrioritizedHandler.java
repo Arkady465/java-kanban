@@ -7,7 +7,6 @@ import ru.yandex.todo.manager.TaskManager;
 import ru.yandex.todo.model.Task;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,7 +30,6 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
             String[] parts = path.split("/");
 
             if ("GET".equalsIgnoreCase(method) && parts.length == 2 && parts[1].equals("prioritized")) {
-                // Предполагается, что getPrioritizedTasks() возвращает Set<Task> или List<Task>
                 Set<Task> prioritizedTasks = manager.getPrioritizedTasks();
                 String json = gson.toJson(prioritizedTasks);
                 sendText(exchange, json);
