@@ -1,5 +1,5 @@
 import org.junit.jupiter.api.Test;
-import yandex.ru.yandex.todo.manager.InMemoryTaskManager;
+import ru.yandex.todoo.manager.InMemoryTaskManager;
 import ru.yandex.todo.model.*;
 
 import java.time.LocalDateTime;
