@@ -1,12 +1,18 @@
-package ru.yandex.todoo.manager;
+package ru.yandex.todo.manager;
 
 import ru.yandex.todo.storage.FileBackedTaskManager;
-import service.TaskManager;
+import ru.yandex.todoo.manager.TaskManager;
 
 import java.io.File;
 
+/**
+ * Утилитный класс – фабрика менеджеров.
+ * Метод getDefault() возвращает экземпляр TaskManager
+ * (по умолчанию – файловый).
+ */
 public class Managers {
     public static TaskManager getDefault() {
-        return new FileBackedTaskManager(new File("tasks_data.csv"));
+        File file = new File("tasks_data.csv");
+        return new FileBackedTaskManager(file);
     }
 }
