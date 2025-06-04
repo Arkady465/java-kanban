@@ -1,6 +1,8 @@
-package ru.yandex.todo.manager;
+package ru.yandex.todoo.manager;
 
 import ru.yandex.todo.storage.FileBackedTaskManager;
+import ru.yandex.todo.manager.TaskManager;
+
 import java.io.File;
 
 /**
