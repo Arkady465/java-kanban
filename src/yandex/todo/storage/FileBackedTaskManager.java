@@ -1,4 +1,4 @@
-package todo.storage;
+package yandex.todo.storage;
 
 import ru.yandex.todo.manager.InMemoryTaskManager;
 import ru.yandex.todo.manager.ManagerSaveException;
@@ -7,7 +7,6 @@ import ru.yandex.todo.model.Subtask;
 import ru.yandex.todo.model.Task;
 
 import java.io.*;
-import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;

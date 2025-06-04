@@ -1,4 +1,4 @@
-package ru.yandex.todo.manager;
+package yandex.todo.manager;
 
 public class ManagerSaveException extends RuntimeException {
     public ManagerSaveException(String message) {
