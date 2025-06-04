@@ -1,5 +1,5 @@
 import org.junit.jupiter.api.Test;
-import ru.yandex.todoo.manager.InMemoryHistoryManager;
+import ru.yandex.todo.manager.InMemoryHistoryManager;
 import ru.yandex.todo.model.Task;
 
 import static org.junit.jupiter.api.Assertions.*;
