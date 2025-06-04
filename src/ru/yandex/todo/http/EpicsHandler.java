@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import todo.manager.ManagerSaveException;
-import ru.yandex.todo.manager.TaskManager;
+import ru.yandex.todo.manager.TaskManagers;
 import todo.model.Epic;
-import ru.yandex.todo.model.Subtask;
+import ru.yandex.todo.model.Subtasks;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,10 +22,10 @@ import java.util.List;
  *   DELETE /epics/{id}             → manager.deleteEpic(id)
  */
 public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager manager;
+    private final TaskManagers manager;
     private final Gson gson;
 
-    public EpicsHandler(TaskManager manager, Gson gson) {
+    public EpicsHandler(TaskManagers manager, Gson gson) {
         this.manager = manager;
         this.gson = gson;
     }
@@ -71,7 +71,7 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
                     && parts[1].equals("epics") && parts[3].equals("subtasks")) {
                 try {
                     int epicId = Integer.parseInt(parts[2]);
-                    List<Subtask> subtasks = manager.getEpicSubtasks(epicId);
+                    List<Subtasks> subtasks = manager.getEpicSubtasks(epicId);
                     if (subtasks == null) {
                         sendNotFound(exchange);
                     } else {

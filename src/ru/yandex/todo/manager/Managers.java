@@ -1,7 +1,6 @@
 package ru.yandex.todo.manager;
 
-import ru.yandex.todo.manager.TaskManager;
-import ru.yandex.todo.storage.FileBackedTaskManager;
+import ru.yandex.todo.storage.FileBackedTaskManagers;
 
 import java.io.File;
 
@@ -11,8 +10,8 @@ import java.io.File;
  * (по умолчанию – файловый).
  */
 public class Managers {
-    public static TaskManager getDefault() {
+    public static TaskManagers getDefault() {
         File file = new File("tasks_data.csv");
-        return new FileBackedTaskManager(file);
+        return new FileBackedTaskManagers(file);
     }
 }

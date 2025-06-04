@@ -3,8 +3,8 @@ package ru.yandex.todo.http;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import ru.yandex.todo.manager.TaskManager;
-import ru.yandex.todo.model.Task;
+import ru.yandex.todo.manager.TaskManagers;
+import ru.yandex.todo.model.Tasks;
 
 import java.io.IOException;
 import java.util.Set;
@@ -14,10 +14,10 @@ import java.util.Set;
  *   GET /prioritized   → manager.getPrioritizedTasks()
  */
 public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager manager;
+    private final TaskManagers manager;
     private final Gson gson;
 
-    public PrioritizedHandler(TaskManager manager, Gson gson) {
+    public PrioritizedHandler(TaskManagers manager, Gson gson) {
         this.manager = manager;
         this.gson = gson;
     }
@@ -30,7 +30,7 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
             String[] parts = path.split("/");
 
             if ("GET".equalsIgnoreCase(method) && parts.length == 2 && parts[1].equals("prioritized")) {
-                Set<Task> prioritizedTasks = manager.getPrioritizedTasks();
+                Set<Tasks> prioritizedTasks = manager.getPrioritizedTasks();
                 String json = gson.toJson(prioritizedTasks);
                 sendText(exchange, json);
             } else {

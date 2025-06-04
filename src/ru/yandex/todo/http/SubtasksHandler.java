@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import todo.manager.ManagerSaveException;
-import ru.yandex.todo.manager.TaskManager;
-import ru.yandex.todo.model.Subtask;
+import ru.yandex.todo.manager.TaskManagers;
+import ru.yandex.todo.model.Subtasks;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +20,10 @@ import java.util.List;
  *   DELETE /subtasks/{id}    → manager.deleteSubtask(id)
  */
 public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager manager;
+    private final TaskManagers manager;
     private final Gson gson;
 
-    public SubtasksHandler(TaskManager manager, Gson gson) {
+    public SubtasksHandler(TaskManagers manager, Gson gson) {
         this.manager = manager;
         this.gson = gson;
     }
@@ -37,7 +37,7 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
 
             // ===== 1) GET /subtasks =====
             if ("GET".equalsIgnoreCase(method) && parts.length == 2 && parts[1].equals("subtasks")) {
-                List<Subtask> subtasks = manager.getSubtasks();
+                List<Subtasks> subtasks = manager.getSubtasks();
                 String json = gson.toJson(subtasks);
                 sendText(exchange, json);
                 return;
@@ -47,11 +47,11 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
             if ("GET".equalsIgnoreCase(method) && parts.length == 3 && parts[1].equals("subtasks")) {
                 try {
                     int id = Integer.parseInt(parts[2]);
-                    Subtask subtask = manager.getSubtaskById(id);
-                    if (subtask == null) {
+                    Subtasks subtasks = manager.getSubtaskById(id);
+                    if (subtasks == null) {
                         sendNotFound(exchange);
                     } else {
-                        String json = gson.toJson(subtask);
+                        String json = gson.toJson(subtasks);
                         sendText(exchange, json);
                     }
                 } catch (NumberFormatException e) {
@@ -64,12 +64,12 @@ public class SubtasksHandler extends BaseHttpHandler implements HttpHandler {
             if ("POST".equalsIgnoreCase(method) && parts.length == 2 && parts[1].equals("subtasks")) {
                 InputStream is = exchange.getRequestBody();
                 String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                Subtask subtaskFromJson = gson.fromJson(body, Subtask.class);
+                Subtasks subtasksFromJson = gson.fromJson(body, Subtasks.class);
                 try {
-                    if (subtaskFromJson.getId() == 0) {
-                        manager.createSubtask(subtaskFromJson);
+                    if (subtasksFromJson.getId() == 0) {
+                        manager.createSubtask(subtasksFromJson);
                     } else {
-                        manager.updateSubtask(subtaskFromJson);
+                        manager.updateSubtask(subtasksFromJson);
                     }
                     String resp = "{\"result\":\"ok\"}";
                     sendText(exchange, resp);

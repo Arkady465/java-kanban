@@ -3,7 +3,7 @@ package ru.yandex.todo.http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
-import ru.yandex.todo.manager.TaskManager;
+import ru.yandex.todo.manager.TaskManagers;
 import todo.manager.Managers;
 import ru.yandex.todo.util.DurationAdapter;
 import ru.yandex.todo.util.LocalDateTimeAdapter;
@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
 public class HttpTaskServer {
     public static final int PORT = 8080;
 
-    private final TaskManager manager;
+    private final TaskManagers manager;
     private HttpServer server;
 
     // Единый объект Gson для всех хэндлеров, со спрингами для Duration и LocalDateTime
@@ -33,7 +33,7 @@ public class HttpTaskServer {
             .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
             .create();
 
-    public HttpTaskServer(TaskManager manager) {
+    public HttpTaskServer(TaskManagers manager) {
         this.manager = manager;
     }
 
@@ -87,7 +87,7 @@ public class HttpTaskServer {
      * По умолчанию берём менеджер из Managers.getDefault().
      */
     public static void main(String[] args) {
-        TaskManager defaultManager = Managers.getDefault();
+        TaskManagers defaultManager = Managers.getDefault();
         HttpTaskServer httpServer = new HttpTaskServer(defaultManager);
         httpServer.start();
         System.out.println("Press Ctrl+C to stop the server.");
