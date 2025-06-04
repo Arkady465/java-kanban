@@ -1,7 +1,6 @@
 import org.junit.jupiter.api.Test;
 import todo.storage.FileBackedTaskManager;
 import ru.yandex.todo.model.Task;
-import ru.yandex.todo.model.Status;
 
 import java.io.File;
 
