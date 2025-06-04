@@ -1,7 +1,11 @@
 package ru.yandex.todo.manager;
 
-public class Managers {
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager(); // гарантированно рабочий менеджер
+public class ManagerSaveException extends RuntimeException {
+    public ManagerSaveException(String message) {
+        super(message);
+    }
+
+    public ManagerSaveException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
