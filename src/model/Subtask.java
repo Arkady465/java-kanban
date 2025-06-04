@@ -1,25 +1,35 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+/**
+ * Подзадача, привязанная к определённому эпику.
+ */
 public class Subtask extends Task {
-    private final int epicId;
+    private final int epicID;
 
-    public Subtask(String name, String description, int epicId) {
+    public Subtask(String name,
+                   String description,
+                   int epicID) {
         super(name, description);
-        this.epicId = epicId;
+        this.epicID = epicID;
     }
 
-    public Subtask(int id, String name, Status status, String description, int epicId) {
-        super(id, name, status, description);
-        this.epicId = epicId;
+    public Subtask(int id,
+                   String name,
+                   String description,
+                   Status status,
+                   Duration duration,
+                   LocalDateTime startTime,
+                   int epicID) {
+        super(id, name, description, status, duration, startTime);
+        this.epicID = epicID;
     }
 
-    public int getEpicId() {
-        return epicId;
-    }
-
-    // Альтернативный метод для получения id эпика
     public int getEpicID() {
-        return epicId;
+        return epicID;
     }
 
     @Override
@@ -27,11 +37,30 @@ public class Subtask extends Task {
         return TaskType.SUBTASK;
     }
 
-    // Сериализация: id, тип, имя, статус, описание, startTime, duration, epicId
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Subtask)) return false;
+        if (!super.equals(o)) return false;
+        Subtask subtask = (Subtask) o;
+        return epicID == subtask.epicID;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), epicID);
+    }
+
     @Override
     public String toString() {
-        String start = (startTime != null) ? startTime.toString() : "null";
-        String dur = (duration != null) ? String.valueOf(duration.toMinutes()) : "null";
-        return id + "," + getType() + "," + name + "," + status + "," + description + "," + start + "," + dur + "," + epicId;
+        return "Subtask{" +
+                "id=" + getId() +
+                ", name='" + getName() + "'" +
+                ", description='" + getDescription() + "'" +
+                ", status=" + getStatus() +
+                ", duration=" + getDuration() +
+                ", startTime=" + getStartTime() +
+                ", epicID=" + epicID +
+                '}';
     }
 }

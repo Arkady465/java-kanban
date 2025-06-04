@@ -1,8 +1,8 @@
 package service;
 
-import model.*;
-import java.io.File;
-
+/**
+ * Фабрика для удобного создания TaskManager.
+ */
 public class Managers {
 
     public static TaskManager getDefault() {
@@ -13,7 +13,11 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static FileBackedTaskManager getFileBacked(File file) {
-        return new FileBackedTaskManager(file);
+    public static TaskManager getDefaultTaskManager() {
+        return new InMemoryTaskManager();
+    }
+
+    public static TaskManager getDefaultFileBacked(String filePath) {
+        return new FileBackedTaskManager(filePath);
     }
 }

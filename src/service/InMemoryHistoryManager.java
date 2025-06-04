@@ -1,20 +1,28 @@
 package service;
 
 import model.Task;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.util.*;
+
+/**
+ * Упрощённая реализация HistoryManager:
+ * Хранит до последних 10 уникальных Task (по id).
+ * Если добавляем тот же task повторно, удаляем старый и добавляем заново в конец.
+ */
 public class InMemoryHistoryManager implements HistoryManager {
-
-    private final List<Task> history = new ArrayList<>();
+    private static final int MAX_HISTORY = 10;
+    private final LinkedList<Task> history = new LinkedList<>();
 
     @Override
     public void add(Task task) {
-        // Просто добавляем задачу в конец истории
-        history.add(task);
-        // Если количество задач превышает 10, удаляем самые старые.
-        while (history.size() > 10) {
-            history.remove(0);
+        if (task == null) {
+            return;
+        }
+        // Если в списке уже есть эта задача (по id), удаляем старый вариант
+        history.removeIf(t -> t.getId() == task.getId());
+        history.addLast(task);
+        if (history.size() > MAX_HISTORY) {
+            history.removeFirst();
         }
     }
 

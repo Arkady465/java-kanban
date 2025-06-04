@@ -1,33 +1,27 @@
 package yandex;
 
-import model.*;
+import model.Task;
+import model.Status;
 import service.FileBackedTaskManager;
+import service.TaskManager;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
-        File file = new File("data.csv");
-        FileBackedTaskManager manager = new FileBackedTaskManager(file);
+        TaskManager manager = new FileBackedTaskManager(new File("tasks.csv"));
 
-        Task task1 = new Task("Покупки", "Купить хлеб и молоко");
-        Epic epic = new Epic("Ремонт", "Сделать ремонт в комнате");
-        Subtask sub1 = new Subtask("Поклеить обои", "Выбрать светлые", epic.getId());
+        Task t1 = new Task("Task 1", "Description 1");
+        t1.setStatus(Status.NEW);
+        t1.setStartTime(LocalDateTime.of(2025, 1, 1, 10, 0));
+        t1.setDuration(Duration.ofMinutes(30));
+        manager.addTask(t1);
 
-        manager.addTask(task1);
-        manager.addEpic(epic);
-        manager.addSubtask(sub1);
-
-        System.out.println("Сохранённые задачи:");
-        for (Task task : manager.getAllTasks()) {
-            System.out.println(task);
-        }
-
-        // Загружаем менеджер из файла
-        FileBackedTaskManager loadedManager = FileBackedTaskManager.loadFromFile(file);
-        System.out.println("\nЗагруженные задачи из файла:");
-        for (Task task : loadedManager.getAllTasks()) {
-            System.out.println(task);
+        System.out.println("All tasks:");
+        for (Task t : manager.getAllTasks()) {
+            System.out.println(t);
         }
     }
 }

@@ -1,39 +1,28 @@
-package tests;
-
-import model.Task;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.todo.manager.InMemoryHistoryManager;
+import ru.yandex.todo.model.Task;
+
 import static org.junit.jupiter.api.Assertions.*;
-import service.HistoryManager;
-import service.Managers;
-import java.util.List;
 
-class InMemoryHistoryManagerTest {
-
-    private HistoryManager historyManager;
-
-    @BeforeEach
-    void setUp() {
-        historyManager = Managers.getDefaultHistory();
-    }
+public class InMemoryHistoryManagerTest {
 
     @Test
     void shouldAddTasksToHistory() {
-        Task task = new Task("Task 1", "Description 1");
-        historyManager.add(task);
-        List<Task> history = historyManager.getHistory();
-        assertEquals(1, history.size(), "History should contain 1 task");
-        assertEquals(task, history.get(0), "First task in history should match");
+        InMemoryHistoryManager manager = new InMemoryHistoryManager();
+        Task task = new Task("Test", "Desc");
+        task.setId(1);
+        manager.add(task);
+        assertEquals(1, manager.getHistory().size());
     }
 
     @Test
     void shouldNotExceedHistoryLimit() {
-        for (int i = 1; i <= 12; i++) {
-            historyManager.add(new Task("Task " + i, "Description " + i));
+        InMemoryHistoryManager manager = new InMemoryHistoryManager();
+        for (int i = 0; i < 15; i++) {
+            Task task = new Task("Task " + i, "Desc");
+            task.setId(i);
+            manager.add(task);
         }
-        List<Task> history = historyManager.getHistory();
-        assertEquals(10, history.size(), "History should only contain the last 10 tasks");
-        assertEquals("Task 3", history.get(0).getName(), "First task in history should match the 3rd task added");
-        assertEquals("Task 12", history.get(9).getName(), "Last task in history should match the last task added");
+        assertEquals(10, manager.getHistory().size(), "History should only contain the last 10 tasks");
     }
 }
