@@ -1,0 +1,30 @@
+package service;
+
+import org.junit.jupiter.api.Test;
+import taskManager.model.Task;
+import taskManager.service.InMemoryHistoryManager;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class InMemoryHistoryManagerTest {
+
+    @Test
+    void shouldAddTasksToHistory() {
+        InMemoryHistoryManager manager = new InMemoryHistoryManager();
+        Task task = new Task("Test", "Desc");
+        task.setId(1);
+        manager.add(task);
+        assertEquals(1, manager.getHistory().size());
+    }
+
+    @Test
+    void shouldNotExceedHistoryLimit() {
+        InMemoryHistoryManager manager = new InMemoryHistoryManager();
+        for (int i = 0; i < 15; i++) {
+            Task task = new Task("Task " + i, "Desc");
+            task.setId(i);
+            manager.add(task);
+        }
+        assertEquals(10, manager.getHistory().size(), "History should only contain the last 10 tasks");
+    }
+}
