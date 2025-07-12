@@ -1,4 +1,3 @@
-// src/main/java/managers/Manager.java
 package managers;
 
 import com.google.gson.Gson;
