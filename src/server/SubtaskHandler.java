@@ -1,9 +1,9 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import exception.NotFoundException;
 import managers.TaskManager;
 import task.Subtask;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +18,6 @@ public class SubtaskHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // ... логика GET/POST/DELETE для /tasks/subtask ...
         String method = exchange.getRequestMethod();
         switch (method) {
             case "GET":
