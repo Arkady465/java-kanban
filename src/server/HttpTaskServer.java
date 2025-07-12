@@ -1,3 +1,4 @@
+// src/main/java/server/HttpTaskServer.java
 package server;
 
 import com.sun.net.httpserver.HttpServer;
@@ -14,13 +15,16 @@ public class HttpTaskServer {
     public HttpTaskServer(TaskManager manager) throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-        // Порядок регистрации неважен, выбор контекста делается longest-prefix first
-        server.createContext("/tasks/task",    new TaskHandler(manager));
-        server.createContext("/tasks/epic",    new EpicHandler(manager));
-        server.createContext("/tasks/subtask", new SubtaskHandler(manager));
-        server.createContext("/tasks/history", new HistoryHandler(manager));
-        // Приоритетный список – просто корневой "/tasks"
-        server.createContext("/tasks",         new PrioritizedHandler(manager));
+        // 1) CRUD задач
+        server.createContext("/tasks/task",      new TaskHandler(manager));
+        // 2) CRUD эпиков
+        server.createContext("/tasks/epic",      new EpicHandler(manager));
+        // 3) CRUD подзадач
+        server.createContext("/tasks/subtask",   new SubtaskHandler(manager));
+        // 4) Историю просмотров
+        server.createContext("/tasks/history",   new HistoryHandler(manager));
+        // 5) Приоритетный список — просто корень /tasks
+        server.createContext("/tasks",           new PrioritizedHandler(manager));
     }
 
     public void start() {
