@@ -1,4 +1,3 @@
-// src/main/java/server/SubtaskHandler.java
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
