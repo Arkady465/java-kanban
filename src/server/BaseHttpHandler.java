@@ -9,20 +9,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import managers.Manager;
 
-public abstract class BaseHttpHandler implements HttpHandler {
-    protected static final int STATUS_OK                = 200;
-    protected static final int STATUS_CREATED           = 201;
-    protected static final int STATUS_TASK_NOT_FOUND    = 404;
-    protected static final int STATUS_METHOD_NOT_FOUND  = 405;
-    protected static final int STATUS_CONFLICT          = 406;
-    protected static final int STATUS_BAD_REQUEST       = 500;
 
-    /** Общий Gson-инстанс из Manager */
+public abstract class BaseHttpHandler implements HttpHandler {
+    protected static final int STATUS_OK               = 200;
+    protected static final int STATUS_CREATED          = 201;
+    protected static final int STATUS_NOT_FOUND        = 404;
+    protected static final int STATUS_METHOD_NOT_FOUND = 405;
+    protected static final int STATUS_CONFLICT         = 406;
+    protected static final int STATUS_BAD_REQUEST      = 500;
+
     protected static final Gson gson = Manager.createGson();
 
-    /**
-     * Универсальный метод отправки JSON-ответа.
-     */
+   
     protected void sendText(HttpExchange exchange,
                             String text,
                             int responseCode) throws IOException {
@@ -38,15 +36,14 @@ public abstract class BaseHttpHandler implements HttpHandler {
         exchange.close();
     }
 
-    /**
-     * Парсит ?id=123 в Optional<123>
-     */
     protected static Optional<Integer> parseId(String query) {
         try {
-            return Optional.of(Integer.parseInt(query));
-        } catch (NumberFormatException | NullPointerException e) {
+            if (query == null || !query.startsWith("id=")) {
+                return Optional.empty();
+            }
+            return Optional.of(Integer.parseInt(query.substring(3)));
+        } catch (Exception e) {
             return Optional.empty();
         }
     }
 }
-
