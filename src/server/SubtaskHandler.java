@@ -20,39 +20,43 @@ public class SubtaskHandler extends BaseHttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         switch (method) {
-            case "GET":
+            case "GET": {
                 Optional<Integer> idOpt = parseId(exchange.getRequestURI().getQuery());
                 if (idOpt.isPresent()) {
-                    Subtask sub = (Subtask) manager.getSubtask(idOpt.get());
+                    Subtask sub = manager.getSubtaskById(idOpt.get());
                     sendText(exchange, gson.toJson(sub), STATUS_OK);
                 } else {
-                    sendText(exchange, gson.toJson(manager.getSubtasks()), STATUS_OK);
+                    sendText(exchange, gson.toJson(manager.getAllSubTasks()), STATUS_OK);
                 }
                 break;
-            case "POST":
+            }
+            case "POST": {
                 InputStream is = exchange.getRequestBody();
                 String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 Subtask s = gson.fromJson(body, Subtask.class);
                 if (s.getId() == 0) {
-                    manager.createSubtask(s);
+                    manager.addSubtask(s);
                     sendText(exchange, gson.toJson(s), STATUS_CREATED);
                 } else {
-                    manager.updateSubtask(s);
+                    Subtask old = manager.getSubtaskById(s.getId());
+                    manager.updateSubTask(old, s);
                     sendText(exchange, gson.toJson(s), STATUS_OK);
                 }
                 break;
-            case "DELETE":
+            }
+            case "DELETE": {
                 Optional<Integer> delId = parseId(exchange.getRequestURI().getQuery());
                 if (delId.isPresent()) {
-                    manager.deleteSubtask(delId.get());
+                    Subtask old = manager.getSubtaskById(delId.get());
+                    manager.deleteSubtaskById(old);
                 } else {
-                    manager.deleteAllSubtasks();
+                    manager.deleteAllESubtask();
                 }
                 sendText(exchange, "", STATUS_OK);
                 break;
+            }
             default:
                 sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
         }
     }
 }
-
