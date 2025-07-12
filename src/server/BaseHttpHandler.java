@@ -3,13 +3,18 @@ package server;
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+
 import managers.Manager;
 
-
+/**
+ * Абстрактный базовый HTTP-хэндлер, уже реализующий HttpHandler.
+ * Предоставляет общий Gson и метод sendText(...).
+ */
 public abstract class BaseHttpHandler implements HttpHandler {
     protected static final int STATUS_OK               = 200;
     protected static final int STATUS_CREATED          = 201;
@@ -18,9 +23,12 @@ public abstract class BaseHttpHandler implements HttpHandler {
     protected static final int STATUS_CONFLICT         = 406;
     protected static final int STATUS_BAD_REQUEST      = 500;
 
+    /** Единый Gson-инстанс из Manager */
     protected static final Gson gson = Manager.createGson();
 
-   
+    /**
+     * Универсальный метод отправки JSON-ответа.
+     */
     protected void sendText(HttpExchange exchange,
                             String text,
                             int responseCode) throws IOException {
@@ -36,6 +44,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
         exchange.close();
     }
 
+    /** Парсит "?id=123" → Optional.of(123) или empty */
     protected static Optional<Integer> parseId(String query) {
         try {
             if (query == null || !query.startsWith("id=")) {
