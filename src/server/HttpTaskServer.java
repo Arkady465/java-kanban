@@ -14,13 +14,12 @@ public class HttpTaskServer {
     public HttpTaskServer(TaskManager manager) throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
 
-        // Сначала более специфичные эндпоинты:
-        server.createContext("/tasks/task", new TaskHandler(manager));
-        server.createContext("/tasks/epic", new EpicHandler(manager));
-        server.createContext("/tasks/subtask", new SubtaskHandler(manager));
-        server.createContext("/tasks/history", new HistoryHandler(manager));
-        // Контекст для получения приоритетных задач:
-        server.createContext("/tasks", new PrioritizedHandler(manager));
+        // Контексты под тесты:
+        server.createContext("/tasks", new TaskHandler(manager));
+        server.createContext("/epics", new EpicHandler(manager));
+        server.createContext("/subtasks", new SubtaskHandler(manager));
+        server.createContext("/history", new HistoryHandler(manager));
+        server.createContext("/prioritized", new PrioritizedHandler(manager));
     }
 
     public void start() {
