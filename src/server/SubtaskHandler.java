@@ -1,6 +1,8 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import exception.NotFoundException;
 import managers.TaskManager;
 import task.Subtask;
 
@@ -9,7 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class SubtaskHandler extends BaseHttpHandler {
+public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
     private final TaskManager manager;
 
     public SubtaskHandler(TaskManager manager) {
@@ -19,44 +21,75 @@ public class SubtaskHandler extends BaseHttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
-        switch (method) {
-            case "GET": {
-                Optional<Integer> idOpt = parseId(exchange.getRequestURI().getQuery());
-                if (idOpt.isPresent()) {
-                    Subtask sub = manager.getSubtaskById(idOpt.get());
-                    sendText(exchange, gson.toJson(sub), STATUS_OK);
-                } else {
-                    sendText(exchange, gson.toJson(manager.getAllSubTasks()), STATUS_OK);
-                }
-                break;
+        String query = exchange.getRequestURI().getQuery();
+
+        try {
+            switch (method) {
+                case "GET":
+                    if (query == null) {
+                        sendText(exchange, gson.toJson(manager.getAllSubTasks()), STATUS_OK);
+                    } else {
+                        Optional<Integer> id = parseId(query);
+                        if (id.isPresent()) {
+                            Subtask subtask = manager.getSubtaskById(id.get());
+                            if (subtask != null) {
+                                sendText(exchange, gson.toJson(subtask), STATUS_OK);
+                            } else {
+                                sendText(exchange, "Подзадача не найдена", STATUS_TASK_NOT_FOUND);
+                            }
+                        } else {
+                            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
+                        }
+                    }
+                    break;
+                case "POST":
+                    InputStream body = exchange.getRequestBody();
+                    String json = new String(body.readAllBytes(), StandardCharsets.UTF_8);
+                    Subtask newSubtask = gson.fromJson(json, Subtask.class);
+                    if (query == null) {
+                        if (manager.isOverlapTask(newSubtask)) {
+                            sendText(exchange, "Задача пересекается с существующей", STATUS_CONFLICT);
+                        } else {
+                            manager.addSubtask(newSubtask);
+                            sendText(exchange, "Подзадача создана", STATUS_CREATED);
+                        }
+                    } else {
+                        Optional<Integer> id = parseId(query);
+                        if (id.isPresent()) {
+                            if (manager.isOverlapTask(newSubtask)) {
+                                sendText(exchange, "Задача пересекается с существующей", STATUS_CONFLICT);
+                            } else {
+                                Subtask oldSubtask = manager.getSubtaskById(id.get());
+                                manager.updateSubTask(oldSubtask, newSubtask);
+                                sendText(exchange, "Подзадача обновлёна", STATUS_CREATED);
+                            }
+                        } else {
+                            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
+                        }
+                    }
+                    break;
+                case "DELETE":
+                    if (query == null) {
+                        manager.deleteAllEpics();
+                        sendText(exchange, "Все подзадачи удалены", STATUS_OK);
+                    } else {
+                        Optional<Integer> id = parseId(query);
+                        if (id.isPresent()) {
+                            Subtask subtask = manager.getSubtaskById(id.get());
+                            manager.deleteSubtaskById(subtask);
+                            sendText(exchange, "Подзадача удалёна", STATUS_OK);
+                        } else {
+                            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
+                        }
+                    }
+                    break;
+                default:
+                    sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
             }
-            case "POST": {
-                InputStream is = exchange.getRequestBody();
-                String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                Subtask s = gson.fromJson(body, Subtask.class);
-                if (s.getId() == 0) {
-                    manager.addSubtask(s);
-                    sendText(exchange, gson.toJson(s), STATUS_CREATED);
-                } else {
-                    Subtask old = manager.getSubtaskById(s.getId());
-                    manager.updateSubTask(old, s);
-                    sendText(exchange, gson.toJson(s), STATUS_OK);
-                }
-                break;
-            }
-            case "DELETE": {
-                Optional<Integer> delId = parseId(exchange.getRequestURI().getQuery());
-                if (delId.isPresent()) {
-                    Subtask old = manager.getSubtaskById(delId.get());
-                    manager.deleteSubtaskById(old);
-                } else {
-                    manager.deleteAllESubtask();
-                }
-                sendText(exchange, "", STATUS_OK);
-                break;
-            }
-            default:
-                sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
+        } catch (NotFoundException e) {
+            sendText(exchange, e.getMessage(), STATUS_TASK_NOT_FOUND);
+        } catch (Exception e) {
+            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_BAD_REQUEST);
         }
     }
 }
