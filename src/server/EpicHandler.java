@@ -1,17 +1,16 @@
+// src/main/java/server/EpicHandler.java
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import exception.NotFoundException;
 import managers.TaskManager;
 import task.Epic;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class EpicHandler extends BaseHttpHandler implements HttpHandler {
+public class EpicHandler extends BaseHttpHandler {
     private final TaskManager manager;
 
     public EpicHandler(TaskManager manager) {
@@ -20,72 +19,41 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        // ... логика GET/POST/DELETE для /tasks/epic ...
         String method = exchange.getRequestMethod();
-        String query = exchange.getRequestURI().getQuery();
-
-        try {
-            switch (method) {
-                case "GET":
-                    if (query == null) {
-                        sendText(exchange, gson.toJson(manager.getAllEpics()), STATUS_OK);
-                    } else {
-                        Optional<Integer> id = parseId(query);
-                        if (id.isPresent()) {
-                            Epic epic = manager.getEpicById(id.get());
-                            sendText(exchange, gson.toJson(epic), STATUS_OK);
-                        } else {
-                            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
-                        }
-                    }
-                    break;
-                case "POST":
-                    InputStream body = exchange.getRequestBody();
-                    String json = new String(body.readAllBytes(), StandardCharsets.UTF_8);
-                    Epic newEpic = gson.fromJson(json, Epic.class);
-                    if (query == null) {
-                        if (manager.isOverlapTask(newEpic)) {
-                            sendText(exchange, "Задача пересекается с существующей", STATUS_CONFLICT);
-                        } else {
-                            manager.addEpic(newEpic);
-                            sendText(exchange, "Эпик создан", STATUS_CREATED);
-                        }
-                    } else {
-                        Optional<Integer> id = parseId(query);
-                        if (id.isPresent()) {
-                            if (manager.isOverlapTask(newEpic)) {
-                                sendText(exchange, "Задача пересекается с существующей", STATUS_CONFLICT);
-                            } else {
-                                Epic oldEpic = manager.getEpicById(id.get());
-                                manager.updateEpic(oldEpic, newEpic);
-                                sendText(exchange, "Эпик обновлён", STATUS_CREATED);
-                            }
-                        } else {
-                            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
-                        }
-                    }
-                    break;
-                case "DELETE":
-                    if (query == null) {
-                        manager.deleteAllEpics();
-                        sendText(exchange, gson.toJson(manager.getAllEpics()), STATUS_OK);
-                    } else {
-                        Optional<Integer> id = parseId(query);
-                        if (id.isPresent()) {
-                            Epic epic = manager.getEpicById(id.get());
-                            manager.deleteEpicById(epic);
-                            sendText(exchange, "Эпик удалён", STATUS_OK);
-                        } else {
-                            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
-                        }
-                    }
-                    break;
-                default:
-                    sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
-            }
-        } catch (NotFoundException e) {
-            sendText(exchange, e.getMessage(), STATUS_TASK_NOT_FOUND);
-        } catch (Exception e) {
-            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_BAD_REQUEST);
+        switch (method) {
+            case "GET":
+                Optional<Integer> idOpt = parseId(exchange.getRequestURI().getQuery());
+                if (idOpt.isPresent()) {
+                    Epic epic = (Epic) manager.getEpic(idOpt.get());
+                    sendText(exchange, gson.toJson(epic), STATUS_OK);
+                } else {
+                    sendText(exchange, gson.toJson(manager.getEpics()), STATUS_OK);
+                }
+                break;
+            case "POST":
+                InputStream is = exchange.getRequestBody();
+                String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                Epic e = gson.fromJson(body, Epic.class);
+                if (e.getId() == 0) {
+                    manager.createEpic(e);
+                    sendText(exchange, gson.toJson(e), STATUS_CREATED);
+                } else {
+                    manager.updateEpic(e);
+                    sendText(exchange, gson.toJson(e), STATUS_OK);
+                }
+                break;
+            case "DELETE":
+                Optional<Integer> delId = parseId(exchange.getRequestURI().getQuery());
+                if (delId.isPresent()) {
+                    manager.deleteEpic(delId.get());
+                } else {
+                    manager.deleteAllEpics();
+                }
+                sendText(exchange, "", STATUS_OK);
+                break;
+            default:
+                sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
         }
     }
 }
