@@ -1,9 +1,9 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import exception.NotFoundException;
 import managers.TaskManager;
 import task.Task;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -18,11 +18,9 @@ public class TaskHandler extends BaseHttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        // ... ваша существующая логика GET/POST/DELETE для /tasks/task ...
         String method = exchange.getRequestMethod();
         switch (method) {
             case "GET":
-                // пример: GET /tasks/task?id=1 или GET /tasks/task
                 Optional<Integer> idOpt = parseId(exchange.getRequestURI().getQuery());
                 if (idOpt.isPresent()) {
                     Task task = manager.getTask(idOpt.get());
