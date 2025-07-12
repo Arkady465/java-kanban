@@ -20,39 +20,43 @@ public class TaskHandler extends BaseHttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
         switch (method) {
-            case "GET":
+            case "GET": {
                 Optional<Integer> idOpt = parseId(exchange.getRequestURI().getQuery());
                 if (idOpt.isPresent()) {
-                    Task task = manager.getTask(idOpt.get());
+                    Task task = manager.getTaskById(idOpt.get());
                     sendText(exchange, gson.toJson(task), STATUS_OK);
                 } else {
-                    sendText(exchange, gson.toJson(manager.getTasks()), STATUS_OK);
+                    sendText(exchange, gson.toJson(manager.getAllTasks()), STATUS_OK);
                 }
                 break;
-            case "POST":
+            }
+            case "POST": {
                 InputStream is = exchange.getRequestBody();
                 String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 Task t = gson.fromJson(body, Task.class);
                 if (t.getId() == 0) {
-                    manager.createTask(t);
+                    manager.addTask(t);
                     sendText(exchange, gson.toJson(t), STATUS_CREATED);
                 } else {
-                    manager.updateTask(t);
+                    Task old = manager.getTaskById(t.getId());
+                    manager.updateTask(old, t);
                     sendText(exchange, gson.toJson(t), STATUS_OK);
                 }
                 break;
-            case "DELETE":
+            }
+            case "DELETE": {
                 Optional<Integer> delId = parseId(exchange.getRequestURI().getQuery());
                 if (delId.isPresent()) {
-                    manager.deleteTask(delId.get());
+                    Task old = manager.getTaskById(delId.get());
+                    manager.deleteTaskById(old);
                 } else {
                     manager.deleteAllTasks();
                 }
                 sendText(exchange, "", STATUS_OK);
                 break;
+            }
             default:
                 sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
         }
     }
 }
-
