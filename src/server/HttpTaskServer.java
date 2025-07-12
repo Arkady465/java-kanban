@@ -1,4 +1,3 @@
-// src/main/java/server/HttpTaskServer.java
 package server;
 
 import com.sun.net.httpserver.HttpServer;
