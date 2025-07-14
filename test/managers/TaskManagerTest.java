@@ -76,7 +76,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         manager.deleteAllTasks();
         manager.deleteAllEpics();
-        manager.deleteAllESubtask();
+        manager.deleteAllSubtasks(); // Исправлено здесь
 
         assertEquals(0, manager.getAllTasks().size());
         assertEquals(0, manager.getAllEpics().size());
@@ -204,7 +204,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(2, manager.getSubTasksForEpic(epic.getId()).size());
         assertEquals(subTask, manager.getSubTasksForEpic(epic.getId()).get(0));
         assertEquals(subTask2, manager.getSubTasksForEpic(epic.getId()).get(1));
-
     }
 
     @Test

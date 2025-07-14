@@ -6,8 +6,6 @@ import managers.TaskManagerTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SubtaskTest extends TaskManagerTest<InMemoryTaskManager> {
@@ -47,6 +45,5 @@ class SubtaskTest extends TaskManagerTest<InMemoryTaskManager> {
         int id = manager.getSubtaskById(subtask.getId()).getId();
 
         assertNotNull(id);
-
     }
 }

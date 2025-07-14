@@ -92,9 +92,8 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
         assertDoesNotThrow(() -> {
             FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(new InMemoryHistoryManager(), file);
-            assertNotNull(manager); // Дополнительно убеждаемся, что объект создан
-            assertTrue(manager.getAllTasks().isEmpty()); // Убеждаемся, что список задач пуст
+            assertNotNull(manager);
+            assertTrue(manager.getAllTasks().isEmpty());
         });
     }
-
 }

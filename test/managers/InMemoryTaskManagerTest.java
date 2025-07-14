@@ -37,6 +37,5 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         assertTrue(manager.isOverlapTask(epic));
 
         assertEquals(2, manager.getPrioritizedTasks().size());
-
     }
 }
