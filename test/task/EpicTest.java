@@ -92,8 +92,8 @@ class EpicTest extends TaskManagerTest<InMemoryTaskManager> {
         manager.addEpic(epic);
         List<Subtask> subtaskList = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
-            Subtask subtask = new Subtask("Задача " + i, "Описание " + i", epic.id);
-                    subtaskList.add(subtask);
+            Subtask subtask = new Subtask("Задача " + i, "Описание " + i, epic.id);
+            subtaskList.add(subtask);
         }
         for (int i = 0; i < 3; i++) {
             manager.addSubtask(subtaskList.get(i));
@@ -108,8 +108,8 @@ class EpicTest extends TaskManagerTest<InMemoryTaskManager> {
         manager.addEpic(epic);
         List<Subtask> subtaskList = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
-            Subtask subtask = new Subtask("Задача " + i, "Описание " + i", epic.id);
-                    subtaskList.add(subtask);
+            Subtask subtask = new Subtask("Задача " + i, "Описание " + i, epic.id);
+            subtaskList.add(subtask);
         }
         epic.setSubTaskListOfEpic(subtaskList);
 
@@ -125,8 +125,8 @@ class EpicTest extends TaskManagerTest<InMemoryTaskManager> {
 
         List<Subtask> listAddSubtask = new ArrayList<>(3);
         for (int i = 0; i < 3; i++) {
-            Subtask subtask = new Subtask("Задача " + i, "Описание " + i", epic.id);
-                    listAddSubtask.add(subtask);
+            Subtask subtask = new Subtask("Задача " + i, "Описание " + i, epic.id);
+            listAddSubtask.add(subtask);
         }
         for (int i = 0; i < 3; i++) {
             manager.addSubtask(listAddSubtask.get(i));
