@@ -2,10 +2,7 @@ package server;
 
 import com.sun.net.httpserver.HttpExchange;
 import managers.TaskManager;
-
 import java.io.IOException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class HistoryHandler extends BaseHttpHandler {
     private final TaskManager manager;
