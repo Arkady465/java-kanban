@@ -69,7 +69,6 @@ public class SubtaskHandler extends BaseHttpHandler {
                     break;
                 case "DELETE":
                     if (query == null) {
-                        // Используем исправленное имя метода
                         manager.deleteAllSubtasks();
                         sendText(exchange, "Все подзадачи удалены", STATUS_OK);
                     } else {

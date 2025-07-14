@@ -59,14 +59,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                         switch (task.getTaskType()) {
                             case TASK:
-                                manager.tasksMap.put(id, task);
+                                manager.tasks.put(id, task);
                                 break;
                             case EPIC:
-                                manager.epicsMap.put(id, (Epic) task);
+                                manager.epics.put(id, (Epic) task);
                                 break;
                             case SUBTASK:
-                                manager.subTasksMap.put(id, (Subtask) task);
-                                Epic epic = manager.epicsMap.get(((Subtask) task).getEpicId());
+                                manager.subtasks.put(id, (Subtask) task);
+                                Epic epic = manager.epics.get(((Subtask) task).getEpicId());
                                 if (epic != null) {
                                     epic.saveSubTaskOfEpic((Subtask) task);
                                 }
@@ -257,12 +257,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         for (String idStr : historyIds) {
             int id = Integer.parseInt(idStr);
 
-            Task task = manager.tasksMap.get(id);
+            Task task = manager.tasks.get(id);
             if (task == null) {
-                task = manager.epicsMap.get(id);
+                task = manager.epics.get(id);
             }
             if (task == null) {
-                task = manager.subTasksMap.get(id);
+                task = manager.subtasks.get(id);
             }
             if (task != null) {
                 historyTasks.add(task);
@@ -297,6 +297,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
+    public void deleteAllEpics() {
+        super.deleteAllEpics();
+        save();
+    }
+
+    @Override
+    public void deleteAllSubtasks() {
+        super.deleteAllSubtasks();
+        save();
+    }
+
+    @Override
     public void deleteTaskById(Task task) {
         super.deleteTaskById(task);
         save();
@@ -305,6 +317,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public void deleteEpicById(Epic epic) {
         super.deleteEpicById(epic);
+        save();
+    }
+
+    @Override
+    public void deleteSubtaskById(Subtask subtask) {
+        super.deleteSubtaskById(subtask);
         save();
     }
 
@@ -327,11 +345,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     @Override
     public Subtask getSubtaskById(int id) {
         return super.getSubtaskById(id);
-    }
-
-    @Override
-    public void deleteSubtaskById(Subtask subtask) {
-        super.deleteSubtaskById(subtask);
     }
 
     @Override

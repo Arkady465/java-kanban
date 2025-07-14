@@ -20,7 +20,7 @@ public interface TaskManager {
 
     void deleteAllEpics();
 
-    void deleteAllSubtasks(); // Исправлено имя метода
+    void deleteAllSubtasks();
 
     void deleteTaskById(Task task);
 
