@@ -1,7 +1,6 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import exception.NotFoundException;
 import managers.TaskManager;
 import task.Task;
@@ -11,7 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class TaskHandler extends BaseHttpHandler implements HttpHandler {
+public class TaskHandler extends BaseHttpHandler {
     private final TaskManager manager;
 
     public TaskHandler(TaskManager manager) {
@@ -86,8 +85,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         } catch (NotFoundException e) {
             sendText(exchange, e.getMessage(), STATUS_TASK_NOT_FOUND);
         } catch (Exception e) {
-            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_BAD_REQUEST);
+            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_INTERNAL_ERROR);
         }
     }
 }
-

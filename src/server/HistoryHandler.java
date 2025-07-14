@@ -1,22 +1,14 @@
 package server;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import managers.TaskManager;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
+public class HistoryHandler extends BaseHttpHandler {
     private final TaskManager manager;
-    Gson gson = new GsonBuilder()
-            .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter())
-            .create();
-
 
     public HistoryHandler(TaskManager manager) {
         this.manager = manager;
@@ -33,7 +25,7 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
                 sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
             }
         } catch (Exception e) {
-            sendText(exchange, "Ошибка при обработке запроса", STATUS_BAD_REQUEST);
+            sendText(exchange, "Ошибка при обработке запроса", STATUS_INTERNAL_ERROR);
         }
     }
 }

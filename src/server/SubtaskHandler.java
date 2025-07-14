@@ -1,7 +1,6 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import exception.NotFoundException;
 import managers.TaskManager;
 import task.Subtask;
@@ -11,7 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
+public class SubtaskHandler extends BaseHttpHandler {
     private final TaskManager manager;
 
     public SubtaskHandler(TaskManager manager) {
@@ -70,7 +69,7 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
                     break;
                 case "DELETE":
                     if (query == null) {
-                        manager.deleteAllEpics();
+                        manager.deleteAllSubtasks();
                         sendText(exchange, "Все подзадачи удалены", STATUS_OK);
                     } else {
                         Optional<Integer> id = parseId(query);
@@ -89,7 +88,7 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
         } catch (NotFoundException e) {
             sendText(exchange, e.getMessage(), STATUS_TASK_NOT_FOUND);
         } catch (Exception e) {
-            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_BAD_REQUEST);
+            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_INTERNAL_ERROR);
         }
     }
 }

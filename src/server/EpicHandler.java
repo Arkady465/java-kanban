@@ -1,7 +1,6 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import exception.NotFoundException;
 import managers.TaskManager;
 import task.Epic;
@@ -11,7 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-public class EpicHandler extends BaseHttpHandler implements HttpHandler {
+public class EpicHandler extends BaseHttpHandler {
     private final TaskManager manager;
 
     public EpicHandler(TaskManager manager) {
@@ -67,7 +66,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 case "DELETE":
                     if (query == null) {
                         manager.deleteAllEpics();
-                        sendText(exchange, gson.toJson(manager.getAllEpics()), STATUS_OK);
+                        sendText(exchange, "Все эпики удалены", STATUS_OK);
                     } else {
                         Optional<Integer> id = parseId(query);
                         if (id.isPresent()) {
@@ -85,8 +84,7 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
         } catch (NotFoundException e) {
             sendText(exchange, e.getMessage(), STATUS_TASK_NOT_FOUND);
         } catch (Exception e) {
-            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_BAD_REQUEST);
+            sendText(exchange, "Ошибка при обработке запроса: " + e.getMessage(), STATUS_INTERNAL_ERROR);
         }
     }
 }
-

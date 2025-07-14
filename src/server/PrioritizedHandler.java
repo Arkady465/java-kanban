@@ -1,12 +1,11 @@
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import managers.TaskManager;
 
 import java.io.IOException;
 
-public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
+public class PrioritizedHandler extends BaseHttpHandler {
     private final TaskManager manager;
 
     public PrioritizedHandler(TaskManager manager) {
@@ -21,6 +20,5 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
         } else {
             sendText(exchange, "Метод не поддерживается", STATUS_METHOD_NOT_FOUND);
         }
-        exchange.close();
     }
 }
